@@ -1,0 +1,42 @@
+1565|merged 31f7f7c39|2019-05-24|fix typo libkea
+2997|merged d13960456|2020-10-02|shp/ subdir for poly.zip
+5412|merged 7f0e047a8|2022-03-08|Update doc/source/drivers/raster/vrt.rst
+6183|unmerged|2023-02-16|fix wrong filename
+6893|merged ec0311436|2022-12-11|Update autotest/gcore/vrt_read.py
+6900|merged 9842add45|2022-12-12|correct python assert test
+6901|merged e8b253032|2022-12-12|ogr_csv.py: add autotest for .psv files
+6910|merged a733bf0a0|2022-12-15|Update autotest/gdrivers/netcdf.py
+7078|merged c815cf02e|2023-01-16|Merge branch 'master' into gdalwarp-auto-overview-lonwrap
+7180|unmerged|2023-02-04|NITF: update CLEVEL to appropriate values when using compression / multiple image segments
+7263|merged 72e80fdda|2023-02-17|Update autotest/gdrivers/nsidcbin.py
+7266|unmerged|2023-02-19|Merge branch 'mem-spatialref' of github.com:mdsumner/gdal into mem-spatialref
+7272|merged 43740ec79|2023-02-20|mem: test tweak
+7282|unmerged|2023-02-21|Merge branch 'vrtconnection-ovr' of github.com:mdsumner/gdal into vrtconnection-ovr
+7287|merged 2734dc5fa|2023-02-22|Update doc/source/drivers/raster/vrt.rst
+7290|merged 271bc54e6|2023-02-22|Update autotest/gcore/vrt_read.py
+7300|merged 70dd1f6df|2023-02-23|VRT: mention a_offset,a_scale availability in doc
+7316|merged a33cf6539|2023-02-27|Update doc/source/drivers/raster/vrt.rst
+7333|merged 1faf6d1a0|2023-03-15|Merge branch 'master' into vrtcon-if
+7548|merged 404c8c4d4|2023-04-03|Update autotest/gcore/vrt_read.py
+8176|unmerged|2023-08-05|apply vsis3 protocol to STACIT s3:// items
+8330|merged 62400aa8e|2023-09-05|correctly test: unpack values and approx-compare
+8343|unmerged|2023-09-08|tests
+8366|merged f4fb403f9|2023-09-08|Apply suggestions from code review
+8375|merged 6fb2f0818|2023-09-10|a_srs for dynamic srs
+8458|unmerged|2023-09-22|gdal_translate: new -dmo options domain-md
+8906|merged c3ef81795|2023-12-05|address review #8906
+8935|merged 633c79f54|2023-12-14|Update port/cpl_string.cpp
+11648|unmerged|2025-01-14|DOC: configoptions fix ignore-env-var directive
+12308|unmerged|2025-05-08|Update cmake_builds.yml numpy>=2
+12321|unmerged|2025-05-09|gdal_raster_tile.rst: tiny fix max zoom
+12359|unmerged|2025-05-13|ensure valid axis values in mdim transpose
+12366|merged 385efff49|2025-05-14|Update doc/source/drivers/raster/vrt.rst
+12651|merged 60f1c445b|2025-06-28|Adjustments
+13786|merged 6eec9417a|2026-01-28|Apply suggestion from @rouault
+13913|merged 6ec1ab0f1|2026-02-15|formatting fix
+14569|unmerged|2026-05-13|type not name in swig doc
+14574|merged 3e989f197|2026-05-18|Revert "Apply suggestion from @rouault"
+14677|unmerged|2026-05-28|apply review changes (some)
+14705|merged d106a259e|2026-06-03|Apply suggestion from @rouault
+14810|unmerged|2026-06-16|Change 'step' to 'increment' in RegularlySpacedValues example
+14882|merged e7fd221c1|2026-07-02|Update autotest/utilities/test_gdalalg_mdim_mosaic.py

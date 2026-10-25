@@ -1,0 +1,57 @@
+e7fd221c1|2026-07-03|14882|gdal mdim mosaic: propagate Unit for each dimension's indexing variable (#14882)
+c5d07707a|2026-06-16|14806|Change 'step' to 'increment' in RegularlySpacedValues example
+d106a259e|2026-06-03|14806|Merge pull request #14705 from mdsumner/patch-14
+8a9d4a1a4|2026-05-22|2|some tiny fixes
+3e989f197|2026-05-18|14574|SWIG: add MDArray.GetRegularSpacing() (#14574)
+7e0e87ad6|2026-05-13|14806|Add GDALMDArrayGuessGeoTransform() and corresponding SWIG API
+6ec1ab0f1|2026-02-15|13913|Zarr: handle numpy.datetime64/timedelta64 extension types in V3 (#13913)
+6eec9417a|2026-01-28|13786|Add `block` option to vrt:// connection protocol (#13786)
+60f1c445b|2025-06-28|12651|Geloc transformer: add a GEOLOC_NORMALIZE_LONGITUDE_MINUS_180_PLUS_180 transformer option to force  apply longitude 180 normalization (#12651)
+385efff49|2025-05-14|12366|VRT: 'transpose' for vrt:// connection (#12366)
+0c3881b6b|2025-05-13|12357|ensure valid axis values in mdim transpose
+63b2ce5a6|2025-05-09|12319|gdal_raster_tile.rst: tiny fix max zoom
+52bfd1122|2025-01-16|11668|DOC: software using, remove defunct product
+ff557b8d3|2025-01-14|11647|DOC: configoptions fix ignore-env-var directive
+f21634b46|2024-11-01|11184|Update gti.rst
+048be3837|2024-09-08|10748|doc: various typos in comments and doc from spelling list
+b9b1ffb14|2024-07-09|10388|gdaldem.rst - mention alpha column, not used without -alpha
+633c79f54|2023-12-14|8935|gdal_translate: add -dmo option, for domain-metadata items (#8935)
+c3ef81795|2023-12-06|8906|VRT: add 'sd_name' and 'sd' options for vrt:// connection (#8906)
+5a4d0ed83|2023-12-06|8919|configoptions.rst: a few typos
+3efeae262|2023-11-18|8744|Update configoptions.rst - remove stray quote
+ecfd39c5c|2023-09-16|8405|clarify syntax of vrt:// 'key=true/false' options
+68bfc3247|2023-09-16|8405|VRT 'eco' 'epo' for vrt:// connection
+8c72f3063|2023-09-15|8397|VRT 'nogcp' for vrt:// connection
+6fb2f0818|2023-09-13|8375|VRT 'a_coord_epoch' for vrt:// connection (#8375)
+f4fb403f9|2023-09-08|8366|VRT 'scale' 'unscale' for vrt:// connection (#8366)
+f5f00528e|2023-09-05|8339|VRT 'oo' for vrt:// connection
+62400aa8e|2023-09-05|8330|VRT 'tr', 'r', 'srcwin', 'a_gt' for vrt:// connection (#8330)
+8163f53b5|2023-09-04|8323|VRT 'projwin_srs' for vrt:// connection
+aea34c7f9|2023-09-04|8320|VRT 'projwin' for vrt:// connection
+7a5551865|2023-08-29|8284|dev_environment.rst: fix docker  label
+2db55cc37|2023-08-02|8168|apply vsis3 protocol to STACIT s3:// items
+9e11c56e0|2023-05-26|7838|gpkg.rst stray backticks
+632a085d4|2023-05-26|7837|Update vrt.rst - fix tiny typo
+b9926c4be|2023-05-09|7718|warp_tut.rst: small fixes
+889ded7f9|2023-05-01|7665|Update raster_data_model.rst
+404c8c4d4|2023-04-03|7548|VRT: add 'outsize' option for vrt:// connection (#7548)
+b235e5559|2023-03-27|7521|VRT 'scale' and 'exponent' option for vrt:// connection
+1faf6d1a0|2023-03-15|7333|VRT: add 'if' option for vrt:// connection (#7333)
+a33cf6539|2023-02-27|7316|VRT: add 'gcp' option for vrt:// connection (#7316)
+efafc1ac9|2023-02-23|7309|VRT 'ot' option for vrt:// connection
+70dd1f6df|2023-02-23|7300|VRT: add 'a_offset' and 'a_scale' options for vrt:// connection (#7300)
+271bc54e6|2023-02-22|7290|VRT: add  'expand' option for vrt:// connection (#7290)
+2734dc5fa|2023-02-22|7287|VRT: add "ovr" option for vrt:// connection (#7287)
+43740ec79|2023-02-20|7272|MEM: Adds 'SPATIALREFERENCE' element to the DSN format.  (#7272)
+72e80fdda|2023-02-17|7263|NSIDCbin: Sea Ice Concentrations new raster driver  (#7263)
+850e886ac|2023-02-08|7309|padfExtent/s consistency, and small doc fixes
+c815cf02e|2023-01-17|7078|gdalwarp: overview choice, fix longitude wrap problem (#7078) (fixes #7019)
+a733bf0a0|2022-12-15|6910|netCDF: add a ASSUME_LONGLAT open option (#6910) (fixes #6195)
+e8b253032|2022-12-12|6901|CSV: recognize pipe separator and .psv extension for read (#6901) (fixes #6811)
+9842add45|2022-12-12|6900|VRT: add 'a_ullr' option for vrt:// connection string (#6900)
+ec0311436|2022-12-11|6893|VRT: add 'a_srs' option for vrt:// connection string (#6893)
+63e86cdd2|2022-04-01|5556|tiny update osr_api_tut.rst
+7f0e047a8|2022-03-08|5412|vrt.rst:  example code, xml domain for VRT content (#5412)
+d13960456|2020-10-02|2997|shp/ subdir for poly.zip (#2997)
+768a63b8b|2019-09-20|1869|fix tiny typo
+31f7f7c39|2019-05-23|1565|Fix typo in name of libkea (#1565)

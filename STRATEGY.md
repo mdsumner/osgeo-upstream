@@ -36,10 +36,11 @@ Working note, 2026-10-25. Provisional; edit freely.
   PRs gets closed even when the bugs behind it are real.
 - Code, tests and upstream text are mine; tool use is declared in the PR
   template. The tracker holds the investigation, repros and notes.
-- In tracker issues, comments and commit messages, write upstream items as
-  plain text ("GDAL PR 14677"), not as GitHub references or issue/PR URLs,
-  so upstream threads do not collect a flurry of backlinks. Link on purpose,
-  one at a time, when the backlink helps others. Links in repo files are fine.
+- Links from tracker issues, comments and commit messages to upstream issues
+  and PRs are wanted, since the backlink helps others find the work. Avoid
+  bursts: when posting several items at once, link each upstream item once at
+  most and use plain text ("GDAL PR 14677") for repeats. Links in repo files
+  create no backlinks.
 - Larger design changes (Zarr fill_value semantics, new algorithms) go to a
   discussion on the issue tracker or gdal-dev before code; RFC if the PSC
   asks.

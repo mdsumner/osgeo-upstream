@@ -4,7 +4,7 @@ One table of everything in flight or proposed: open tracker issues, live fork
 branches and new items from the 2026-10-25 sweep. Status words match the
 `status:` labels. Priorities are provisional; see PRIORITIES.md for the order.
 
-Last updated 2026-10-25.
+Last updated 2026-10-28.
 
 ## Multidim, byte references and Zarr
 
@@ -20,6 +20,17 @@ Last updated 2026-10-25.
 | Kerchunk support | [#23](https://github.com/mdsumner/osgeo-upstream/issues/23) | done? | - | GDAL reads Kerchunk JSON and Parquet refs, and has an Icechunk driver (2026-06). Close if nothing is left |
 | Nulls in Parquet domain (implicit zero) | [#38](https://github.com/mdsumner/osgeo-upstream/issues/38) | idea | P3 | Re-read |
 | Eager configure pyarrow/sedonadb | [#37](https://github.com/mdsumner/osgeo-upstream/issues/37) | idea | P3 | Re-read |
+
+## Multidim VRT (found 2026-10-28, parked)
+
+Repro and findings: [notes/2026-10-28-mdim-vrt-findings.md](notes/2026-10-28-mdim-vrt-findings.md).
+No tracker issues yet.
+
+| Item | Where | Status | P | Next step |
+|---|---|---|---|---|
+| Strided read across VRT sources fails; `gdal mdim convert` exits 0 and writes fill values | notes, item 1 | parked | P2 | Check on master; locate the strided path in the VRT mdim source read |
+| mdim `<BlockSize>`: XSD integerList (spaces) vs driver (commas only) | notes, item 2 | parked | P3 | Check master's gdalvrt.xsd and parser |
+| `dataAxisToSRSAxisMapping`: identity default on (t, y, x), 0 in slice mappings | notes, item 3 | parked | P3 | Check master; read mapping set-up and GetView remap |
 
 ## vrt:// connection
 

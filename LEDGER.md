@@ -15,3 +15,8 @@ relying on the fact.
 | 2026-10-25 | mdsumner/geos branches carry the R package geos history, not libgeos | `git log -1 refs/fork/master` shows R package version bumps |
 | 2026-10-25 | PROJ fork branches emscripten-build, docker-build-updates, gdalbarn have no commits of mine | sweep: `git rev-list --author=Sumner HEAD..refs/fork/<b>` is empty |
 | 2026-10-25 | Git cannot show whether an unmerged GitHub PR is open or closed; `refs/pull/N/merge` is not a reliable signal (687 such refs exist) | `git ls-remote https://github.com/OSGeo/gdal 'refs/pull/*/merge' \| wc -l` |
+| 2026-10-28 | GDAL 3.13.3: a strided read (step > 1) across multidim VRT sources fails with "arrayStartIdx[0] = N >= 1"; step 1, or a step within one source, works | `python notes/2026-10-28-mdim-vrt-repro.py`, item 1 |
+| 2026-10-28 | GDAL 3.13.3: `gdal mdim convert --array 'name=v,view=[::2,...]'` over such a VRT prints ERROR 1, exits 0 and writes fill values | repro script, item 1 (exit code and written values) |
+| 2026-10-28 | GDAL 3.13.3: mdim `<BlockSize>` parses comma-separated only; gdalvrt.xsd types it as whitespace-separated integerList | repro script, item 2 |
+| 2026-10-28 | GDAL 3.13.3: absent `dataAxisToSRSAxisMapping` on a (t, y, x) array reads as [1, 2]; 2D slices of arrays with a wrong mapping report a 0 entry | repro script, item 3 |
+| 2026-10-28 | GDAL 3.13.3: `gdal mdim mosaic` output already carries `<SourceSlab offset count step>` per source | `gdal mdim mosaic a.nc b.nc m.vrt; grep -c SourceSlab m.vrt` |

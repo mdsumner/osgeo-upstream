@@ -1,10 +1,10 @@
-"""Repros for notes/2026-10-28-gdalwarp-kernel-findings.md, items 1, 2, 3, 5, 6.
+"""Repros for notes/2026-10-28-gdalwarp-kernel-findings.md, items 1, 2, 3, 5, 6, 7.
 
 Assembled from the rwarp kernel-parity notes (hypertidy/rwarp#3). The
 cases were checked with gdalwarp 3.14.0dev-739fcf03bf. This script was run
 on GDAL 3.8.4 (Ubuntu 24.04), where items 2, 3, 5 and 6 reproduce; item 1
 needs GDAL >= 3.11 (MODE_TIES is ignored before that, so all types print
-5 5 5).
+5 5 5). Item 7 was added later and checked on 3.14.0dev only.
 
     python notes/2026-10-28-gdalwarp-kernel-repro.py
 
@@ -69,7 +69,7 @@ def item3():
     a, b = out[2000], out[1]
     diff = np.abs(a - b)
     print(f"   single vs chunked: {int((diff > 0).sum())} of {a.size} pixels differ, max {diff.max():.3f}")
-    print("   (observed on 3.14.0dev: 319985 of 320000, max 0.113)")
+    print("   (observed on 3.14.0dev: 319985 to 320000 of 320000 across runs, max 0.113)")
 
 
 def item5():
@@ -89,6 +89,20 @@ def item6():
         print("  ", gdal.GetDataTypeName(dt), int(o.GetRasterBand(1).ReadAsArray()[0, 0]))
 
 
+def item7():
+    print("7. cubicspline downsampling a symmetric source 64 -> 23 columns: output should be mirror-symmetric")
+    print("   (observed on 3.14.0dev: cubicspline 5.83e-05, cubic and lanczos 0)")
+    n, m = 64, 23
+    x = np.arange(n)
+    v = np.exp(-((x - (n - 1) / 2) / 6.0) ** 2).astype(np.float32)
+    ds = mem(np.tile(v, (4, 1)), gdal.GDT_Float32)
+    for alg in ("cubicspline", "cubic", "lanczos"):
+        o = gdal.Warp("", ds, format="MEM", resampleAlg=alg, width=m, height=4,
+                      outputBounds=[0, 0, n, 4])
+        r = o.GetRasterBand(1).ReadAsArray()[1]
+        print(f"   {alg:12s} max |out - mirror(out)| = {np.abs(r - r[::-1]).max():.3g}")
+
+
 if __name__ == "__main__":
     print("GDAL", gdal.__version__)
     item1()
@@ -96,3 +110,4 @@ if __name__ == "__main__":
     item3()
     item5()
     item6()
+    item7()

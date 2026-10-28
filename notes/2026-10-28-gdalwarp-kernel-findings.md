@@ -10,12 +10,17 @@ answering questions 1-4 in charles-turner-bot/arrir#22 (`plans/warp.md`).
   (`3.14.0dev-739fcf03bf`).
 - Fixture generator: rwarp `tests/fixtures/kernels/gen.py`.
 - Repro script: [2026-10-28-gdalwarp-kernel-repro.py](2026-10-28-gdalwarp-kernel-repro.py)
-  (items 1, 2, 3, 5, 6). Run on GDAL 3.8.4: items 2, 3, 5 and 6 reproduce
+  (items 1, 2, 3, 5, 6, 7). Run on GDAL 3.8.4: items 2, 3, 5 and 6 reproduce
   there too, so they are long-standing; item 1 needs GDAL >= 3.11
-  (`MODE_TIES`).
+  (`MODE_TIES`). Item 7 checked on 3.14.0dev only.
+- All repros re-run on 2026-10-28 with `3.14.0dev-739fcf03bf`, which was
+  OSGeo master that day.
 
-Upstream issue text, if any, still to be written (see README, "How
-contributions are made").
+Issue drafts from the rwarp sprint, one per upstream ticket, are in
+[2026-10-28-gdalwarp-issue-drafts/](2026-10-28-gdalwarp-issue-drafts/README.md).
+They are starting points; the upstream text is still to be written by me
+(see README, "How contributions are made"). Filing order and todos are in
+PLANS.md, "Warp kernels".
 
 Status key: **confirmed** = reproduced with gdalwarp; **code reading** = from
 the source only, not yet reproduced.
@@ -28,6 +33,7 @@ the source only, not yet reproduced.
 | 4 | `average`/`mode` weight an edge pixel above 1 when the footprint overhangs | confirmed behaviour | may be intentional |
 | 5 | Float working type defeats destination-nodata avoidance for integer outputs | confirmed | bug |
 | 6 | Two rounding rules into integer outputs, depending on working type | confirmed | docs |
+| 7 | `cubicspline` weight not zero beyond \|x\| = 2, so downsampled output is asymmetric | confirmed | minor bug |
 
 ## 1. `MODE_TIES=MIN|MAX` ignored on a value's first occurrence - confirmed, likely bug
 
@@ -117,8 +123,8 @@ Observed with `3.14.0dev-739fcf03bf`:
   200-299 have 100 per 252 (about 0.40).
 - So those chunks are treated as upsampling (no widening) when they are
   downsampling. The single-chunk run logs `dfYScale = 0.778956`.
-- Chunked output differs from single-chunk output in 319,985 of 320,000
-  pixels, by up to 0.113 on data in [0, 1].
+- Chunked output differs from single-chunk output in 319,985 to 320,000
+  of 320,000 pixels (varies by run), by up to 0.113 on data in [0, 1].
 - Also present on GDAL 3.8.4: 319,999 of 320,000 pixels differ, by up to
   0.196 (repro script).
 
@@ -201,6 +207,36 @@ source type:
 So an Int16 source and a Float32 source with the same values, both averaged
 into Int16, can differ by 1 on negative halves. Probably not worth changing;
 worth a sentence in the gdalwarp docs (`-ot`, `-wt`).
+
+## 7. `cubicspline` weight not zero beyond |x| = 2 - confirmed, minor bug
+
+**Where:** `GWKBSpline()` and `GWKBSpline4Values()` (~L3461-3510 in a 2024
+checkout; the functions are unchanged in shape).
+
+**What:**
+
+- The cubic B-spline is evaluated as a sum of truncated cubics,
+  `(x+2)^3_+ - 4(x+1)^3_+ + 6x^3_+ - 4(x-1)^3_+`, leaving out the last term
+  `+(x-2)^3_+`.
+- For x < -2 the function returns 0, but for x > 2 the four terms sum to
+  `-(x-2)^3` (unnormalised) instead of 0.
+- At scale 1 the window never reaches |x| > 2. When downsampling, the window
+  is widened to `ceil(2 / scale)` and evaluated at `(i - delta) * scale`,
+  which goes past 2, so taps on the positive side only get small negative
+  weights.
+
+**Repro:** a source symmetric about its centre, downsampled 64 -> 23 columns
+over the same bounds (repro script, item 7):
+
+```
+cubicspline  max |out - mirror(out)| = 5.83e-05
+cubic        max |out - mirror(out)| = 0
+lanczos      max |out - mirror(out)| = 0
+```
+
+**Suggested fix:** return 0 for |x| >= 2 (or add the missing term) in both
+functions. Small effect (about 1e-4 relative here) but a systematic
+one-sided bias. rwarp already clips.
 
 ## Not bugs, recorded for reference
 

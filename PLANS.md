@@ -32,20 +32,26 @@ No tracker issues yet.
 | mdim `<BlockSize>`: XSD integerList (spaces) vs driver (commas only) | notes, item 2 | parked | P3 | Check master's gdalvrt.xsd and parser |
 | `dataAxisToSRSAxisMapping`: identity default on (t, y, x), 0 in slice mappings | notes, item 3 | parked | P3 | Check master; read mapping set-up and GetView remap |
 
-## Warp kernels (found 2026-10-28, parked)
+## Warp kernels (found 2026-10-28, drafts ready to file)
 
 Findings: [notes/2026-10-28-gdalwarp-kernel-findings.md](notes/2026-10-28-gdalwarp-kernel-findings.md),
 repro [notes/2026-10-28-gdalwarp-kernel-repro.py](notes/2026-10-28-gdalwarp-kernel-repro.py).
 Fixtures in hypertidy/rwarp#3 (branch `kernels/gdal-parity`). No tracker issues yet.
+All confirmed on master as of 2026-10-28 (`3.14.0dev-739fcf03bf`).
+
+Upstream todos, in filing order. Issue drafts from the rwarp sprint are in
+[notes/2026-10-28-gdalwarp-issue-drafts/](notes/2026-10-28-gdalwarp-issue-drafts/README.md):
+rewrite each in my own words, keep it short, declare tool use. One at a
+time, not a burst (STRATEGY.md); a PR with a test only after the issue has
+a response.
 
 | Item | Where | Status | P | Next step |
 |---|---|---|---|---|
-| Kernel scale estimate ignores the chunk's destination offset; chunked warps widen by the wrong amount (also on 3.8.4) | notes, item 3 | parked | P1 | Confirm on master; one-line fix candidate (add nDstXOff/nDstYOff to the sample points) |
-| `MODE_TIES=MIN/MAX` ignored on a value's first occurrence for 32/64-bit and float types | notes, item 1 | parked | P2 | Confirm on master; repro is 1 pixel |
-| Float working type defeats dst nodata avoidance (0.2 -> Byte 0 = nodata, no warning; also on 3.8.4) | notes, item 5 | parked | P2 | Confirm on master |
-| `MODE_TIES=FIRST` docs say "first encountered", code keeps first to reach the count | notes, item 2 | parked | P3 | Docs wording |
-| `average`/`mode` edge weight above 1 when the footprint overhangs the source | notes, item 4 | parked | P3 | Ask whether intended |
-| Two rounding rules into integer outputs depending on working type (also on 3.8.4) | notes, item 6 | parked | P3 | A docs sentence for `-ot`/`-wt` |
+| Kernel scale estimate ignores the chunk's destination offset; chunked warps widen by the wrong amount (also on 3.8.4) | notes, item 3; draft 01 | ready | P1 | File first. Fix candidate: add nDstXOff/nDstYOff to the sample points |
+| `MODE_TIES=MIN/MAX` ignored on a value's first occurrence for 32/64-bit and float types, plus the `MODE_TIES=FIRST` docs wording (first to reach the count, not first encountered) | notes, items 1 and 2; draft 02 | ready | P2 | File second, one issue for both |
+| Float working type defeats dst nodata avoidance (0.2 -> Byte 0 = nodata, no warning; also on 3.8.4), with the two rounding rules into integer outputs as context | notes, items 5 and 6; draft 03 | ready | P2 | File third; the rounding point may only need a docs sentence for `-ot`/`-wt` |
+| `cubicspline` weight not zero beyond \|x\| = 2; downsampled output asymmetric (~1e-4) | notes, item 7; draft 04 | ready | P3 | File fourth. Fix: return 0 for \|x\| >= 2 in GWKBSpline and GWKBSpline4Values |
+| `average`/`mode` edge weight above 1 when the footprint overhangs the source | notes, item 4; draft 05 | idea | P3 | A question, maybe a discussion or gdal-dev post. Needs a standalone repro first |
 
 ## vrt:// connection
 

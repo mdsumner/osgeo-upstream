@@ -20,3 +20,9 @@ relying on the fact.
 | 2026-10-28 | GDAL 3.13.3: mdim `<BlockSize>` parses comma-separated only; gdalvrt.xsd types it as whitespace-separated integerList | repro script, item 2 |
 | 2026-10-28 | GDAL 3.13.3: absent `dataAxisToSRSAxisMapping` on a (t, y, x) array reads as [1, 2]; 2D slices of arrays with a wrong mapping report a 0 entry | repro script, item 3 |
 | 2026-10-28 | GDAL 3.13.3: `gdal mdim mosaic` output already carries `<SourceSlab offset count step>` per source | `gdal mdim mosaic a.nc b.nc m.vrt; grep -c SourceSlab m.vrt` |
+| 2026-10-28 | GDAL 3.14.0dev (739fcf03bf): `-r mode -wo MODE_TIES=MIN` on all-distinct 2x2 blocks gives different answers for Byte and Int32/Float32 (768 of 1024 pixels in the fixture) | rwarp branch kernels/gdal-parity, `tests/fixtures/kernels/gen.py`, cases `mode_distinct_*` |
+| 2026-10-28 | GDAL 3.14.0dev: `MODE_TIES=FIRST` keeps the value that first reaches the winning count; `[[5,3],[3,5]]` warped 2:1 gives 3 | same fixtures, mode cases |
+| 2026-10-28 | GDAL 3.14.0dev: `-wo XSCALE=1 -wo YSCALE=1` disables kernel widening when downsampling (point kernel) | rwarp kernels fixtures, `XSCALE=1` cases match rwarp `KernelScaling::Point` within 1e-6 |
+| 2026-10-28 | GDAL 3.14.0dev: `average` uses the axis-aligned box between the transformed top-left and bottom-right destination corners; a 45 degree pixel gives 5.0 where the exact mean is 4.5 | rwarp kernels fixtures, average rotation cases |
+| 2026-10-28 | GDAL 3.8.4: geolocation `GEOREFERENCING_CONVENTION` defaults to TOP_LEFT_CORNER; with PIXEL_CENTER, cell edges are midpoints between centres in the geolocation coordinates | hypertidy/rwarp `tests/geoloc.rs` (regenerate with `tests/fixtures/make_geoloc_swath.py`) |
+| 2026-10-28 | GDAL 3.8.4: gdal.Warp onto a target with geolocation arrays (`DST_METHOD=GEOLOC_ARRAY`) works; nearest output matched by rwarp pixel for pixel | hypertidy/rwarp `tests/geoloc.rs`, `curvilinear_target_*` |

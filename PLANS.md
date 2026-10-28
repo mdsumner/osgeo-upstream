@@ -32,6 +32,19 @@ No tracker issues yet.
 | mdim `<BlockSize>`: XSD integerList (spaces) vs driver (commas only) | notes, item 2 | parked | P3 | Check master's gdalvrt.xsd and parser |
 | `dataAxisToSRSAxisMapping`: identity default on (t, y, x), 0 in slice mappings | notes, item 3 | parked | P3 | Check master; read mapping set-up and GetView remap |
 
+## Warp kernels (found 2026-10-28, parked)
+
+Findings: [notes/2026-10-28-gdalwarp-kernel-findings.md](notes/2026-10-28-gdalwarp-kernel-findings.md).
+Fixtures in hypertidy/rwarp branch `kernels/gdal-parity`. No tracker issues yet.
+
+| Item | Where | Status | P | Next step |
+|---|---|---|---|---|
+| `MODE_TIES` ignored on a value's first occurrence for wider types (Int32/Float differ from Byte) | notes, item 1 | parked | P2 | Check on master; small repro script here from the rwarp fixture |
+| `MODE_TIES=FIRST` docs say "first encountered", code keeps first to reach the count | notes, item 2 | parked | P3 | Docs wording, or decide which is intended |
+| Scale estimate ignores the chunk offset in multi-chunk warps | notes, item 3 | parked | P2 | Verify with a multi-chunk polar warp before anything else |
+| `average` edge weight above 1 when the footprint overhangs the source | notes, item 4 | parked | P3 | Ask whether intended |
+| Float working type defeats dst nodata avoidance (0.2 -> Byte 0) | notes, item 5 | parked | P3 | Write the exact repro |
+
 ## vrt:// connection
 
 | Item | Where | Status | P | Next step |

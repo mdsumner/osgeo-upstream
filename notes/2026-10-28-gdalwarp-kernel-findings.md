@@ -1,104 +1,206 @@
 # gdalwarp kernel findings, 2026-10-28
 
 Found while bringing hypertidy/rwarp's resampling kernels to parity with
-gdalwarp (rwarp branch `kernels/gdal-parity`), and while answering questions
-1-4 in charles-turner-bot/arrir#22 (`plans/warp.md`).
+gdalwarp (hypertidy/rwarp#3, branch `kernels/gdal-parity`), and while
+answering questions 1-4 in charles-turner-bot/arrir#22 (`plans/warp.md`).
 
-GDAL source read at `739fcf03bf` (3.14.0dev); oracle gdalwarp from the same
-build. Fixtures: rwarp `tests/fixtures/kernels/gen.py` on that branch.
-Line numbers are approximate (`alg/gdalwarpkernel.cpp` unless stated).
+- GDAL source read at `739fcf03bf` (3.14.0dev). Line numbers are approximate
+  and refer to `alg/gdalwarpkernel.cpp` unless a file is given.
+- Behaviour checked with `gdalwarp` / `gdal.Warp` from the same build
+  (`3.14.0dev-739fcf03bf`).
+- Fixture generator: rwarp `tests/fixtures/kernels/gen.py`.
+- Repro script: [2026-10-28-gdalwarp-kernel-repro.py](2026-10-28-gdalwarp-kernel-repro.py)
+  (items 1, 2, 3, 5, 6). Run on GDAL 3.8.4: items 2, 3, 5 and 6 reproduce
+  there too, so they are long-standing; item 1 needs GDAL >= 3.11
+  (`MODE_TIES`).
+
 Upstream issue text, if any, still to be written (see README, "How
 contributions are made").
 
-Status per item: **tested** means a gdalwarp fixture shows it; **code** means
-read from source only.
+Status key: **confirmed** = reproduced with gdalwarp; **code reading** = from
+the source only, not yet reproduced.
 
-## 1. `MODE_TIES` ignored on a value's first occurrence (wider types) - tested
+| # | Finding | Status | Kind |
+|---|---|---|---|
+| 1 | `MODE_TIES=MIN/MAX` ignored on a value's first occurrence (32/64-bit, float) | confirmed | likely bug |
+| 2 | `MODE_TIES=FIRST` docs don't match behaviour | confirmed | docs |
+| 3 | Kernel scale estimate ignores the chunk's destination offset | confirmed | likely bug |
+| 4 | `average`/`mode` weight an edge pixel above 1 when the footprint overhangs | confirmed behaviour | may be intentional |
+| 5 | Float working type defeats destination-nodata avoidance for integer outputs | confirmed | bug |
+| 6 | Two rounding rules into integer outputs, depending on working type | confirmed | docs |
 
-gdalwarp's mode has two implementations:
+## 1. `MODE_TIES=MIN|MAX` ignored on a value's first occurrence - confirmed, likely bug
 
-- 8/16-bit working types: a histogram, compared against the current mode on
-  every pixel (~L8115-8170).
-- Int32/UInt32/64-bit/Float: a list of values (`GWKModeRealType`,
-  ~L7147-7235; `GWKModeComplexType` ~L7480). A value seen for the first time
-  is appended but never compared against the current mode, for count or for
-  ties.
+**Where:** `GWKModeRealType<T>` (~L7147-7235) and `GWKModeComplexType`
+(~L7409-7500). The histogram path in `GWKAverageOrModeThread`
+(~L8115-8170) is used instead for Byte/Int8/UInt16/Int16.
 
-Effect: with `-wo MODE_TIES=MIN` or `MAX`, the answer depends on the data
-type.
+**What:**
 
-```
-2x2 block [[5,3],[7,1]], warped 2:1, -r mode -wo MODE_TIES=MIN
-  Byte          -> 1
-  Int32/Float32 -> 5
-```
-
-Fixture `mode_distinct_*` (every 2x2 block has four distinct values, warped
-2:1): Int32 and Float32 differ from Byte on 768 of 1024 pixels for MIN and
-for MAX. FIRST agrees.
-
-Related, code only: with fractional weights, a once-seen value with a large
-weight can never displace a mode that has a smaller accumulated weight, so
-FIRST can also differ between types.
-
-`test_warp_mode_ties` (`autotest/alg/warp.py:1724`) does not cover a tie at
-first occurrence.
-
-Possible fix: compare a new list entry against the current mode as the
-histogram path does.
-
-## 2. `MODE_TIES=FIRST` documentation - tested
-
-The docs say FIRST keeps "the first value encountered". The code keeps the
-value that first *reaches* the winning count: on each increment, a strictly
-greater count takes over and an equal count goes to the tie rule, which for
-FIRST keeps the current mode.
+- In the list-of-values path, a value seen for the first time is appended
+  with its weight, and becomes the mode only if there is no mode yet
+  (`if (iModeIndex < 0) iModeIndex = i;`).
+- It is never compared against the current mode, by count or by the tie
+  rule. The histogram path compares on every increment, first occurrence
+  included.
+- So the same data gives different modes depending on the working data type.
 
 ```
-[[5,3],[3,5]], -r mode (default MODE_TIES=FIRST) -> 3
+[[5, 3], [7, 1]] warped to 1 pixel, -r mode
+  Byte    FIRST 5  MIN 1  MAX 7
+  Int32   FIRST 5  MIN 5  MAX 5
+  Float32 FIRST 5  MIN 5  MAX 5
 ```
 
-5 is encountered first, but 3 reaches a count of 2 first. A docs wording
-fix, unless the behaviour is the thing to change.
+Larger fixture: a 64x64 source with four distinct values in every 2x2
+block, warped 2:1 (rwarp `mode_distinct_*`). For both MIN and MAX, Int32 and
+Float32 differ from Byte on 768 of 1024 pixels. FIRST agrees.
 
-`MODE_TIES` exists since 3.11 (`gdalwarper.cpp:1524`, `:1549`).
+Related, code reading only: with fractional weights (partial source pixels
+at window edges), a value seen once with a weight larger than the current
+mode's accumulated count never becomes the mode in the list path, where the
+histogram path would pick it. So FIRST can also differ by type when weights
+are fractional.
 
-## 3. Scale estimate ignores the chunk offset - code, unverified
+**Tests:** `test_warp_mode_ties` (`autotest/alg/warp.py:1724`) covers ties
+at a count of 3 in Int16/Int32 only.
 
-`PerformWarp` estimates the source/destination scale (which drives kernel
-widening) by sampling destination points `0..nDstXSize` without adding
-`nDstXOff`/`nDstYOff` (~L1114-1140). Every resampling thread does add the
-offsets. In a multi-chunk warp, each chunk's scale would then be estimated
-at the location of the origin chunk rather than its own.
+**Suggested fix:** in the "add to arr" branch, compare the new entry against
+the current mode the same way the increment branch does.
 
-To check: a multi-chunk warp (small `-wm`, or `-wo` chunk size) where the
-scale varies strongly across the output, e.g. a polar stereographic target
-from a global longitude/latitude source; compare against a single-chunk
-warp.
+## 2. `MODE_TIES=FIRST` documentation doesn't match behaviour - confirmed, docs
 
-## 4. `average`: edge pixel weight above 1 when the footprint overhangs - code
+**Where:** `alg/gdalwarper.cpp:1524`: "By default, the first value
+encountered will be used."
 
-In `COMPUTE_WEIGHT` (~L6849) the box start is clamped to 0
-(`iSrcXMin`) but the partial fraction is not, so when a destination pixel's
-footprint overhangs the source buffer edge, the edge pixel gets weight > 1.
-Possibly intentional (it extends the edge value). Worth asking.
+**What:** ties are re-decided on every count increment, in scan order. So
+FIRST keeps the tied value that first *reached* the winning count, which is
+not necessarily the first value encountered.
 
-Context, tested: `average` measures overlap in source pixel space on the
+```
+[[5, 3], [3, 5]] warped to 1 pixel, MODE_TIES=FIRST -> 3, for every type
+```
+
+5 is encountered first, but 3 reaches a count of 2 first.
+
+**Suggested fix:** reword, e.g. "the value that first reaches the maximum
+count, in scan order".
+
+## 3. Kernel scale estimate ignores the chunk's destination offset - confirmed, likely bug
+
+**Where:** `GDALWarpKernel::PerformWarp` (~L1092-1295).
+
+**What:**
+
+- The sample points for estimating `dfXScale`/`dfYScale` are
+  `dfX = iX * nDstXSize / (nPointsX - 1)` (and `dfY` likewise), in
+  `0..nDst?Size`, passed to `pfnTransformer` without adding
+  `nDstXOff`/`nDstYOff`.
+- Every resampling thread does add the offsets
+  (`padfX[iDstX] = iDstX + 0.5 + nDstXOff`).
+- So in a multi-chunk warp each chunk estimates its scale over a region the
+  size of the chunk at the top-left of the whole output. The estimate
+  depends on the chunk's size, never on its position.
+
+**Repro:** a lon/lat source (3600 x 1600, 0.1 degree, 80N to 80S) warped to
+EPSG:3857 (400 x 800, cubic, `-et 0`), where the y scale varies with
+latitude, once with a large warp memory limit and once with 1 MB to force
+chunking. `CPL_DEBUG=ON` logs `dfXScale = ...` and each chunk's Src/Dst
+windows.
+
+Observed with `3.14.0dev-739fcf03bf`:
+
+- Every 100x100 chunk logs `dfYScale = 1.244978`, at destination rows 0,
+  100 and 200 alike. Every 100x50 chunk logs `1.424308`.
+- The chunks' source windows show the true local y scale differs: rows
+  100-199 have 100 destination rows per 154 source rows (about 0.65); rows
+  200-299 have 100 per 252 (about 0.40).
+- So those chunks are treated as upsampling (no widening) when they are
+  downsampling. The single-chunk run logs `dfYScale = 0.778956`.
+- Chunked output differs from single-chunk output in 319,985 of 320,000
+  pixels, by up to 0.113 on data in [0, 1].
+- Also present on GDAL 3.8.4: 319,999 of 320,000 pixels differ, by up to
+  0.196 (repro script).
+
+**Effect:** in any multi-chunk warp whose scale varies over the output (most
+reprojections of large rasters), bilinear, cubic, cubicspline and lanczos
+are widened by the wrong amount away from the output's top-left. Average
+and mode use the scale only for their corner-range margin.
+
+**Suggested fix:** add `nDstXOff`/`nDstYOff` to the sample points, or wrap
+the transformer the way the threads do.
+
+**Note:** the `XSCALE`/`YSCALE` docs already warn that the per-chunk
+estimate can vary between chunks. This is about it being taken at the wrong
+place. rwarp's `estimate_scale` adds the offset.
+
+## 4. `average`/`mode` weight an edge pixel above 1 when the footprint overhangs - confirmed behaviour, may be intentional
+
+**Where:** `COMPUTE_WEIGHT_Y` / `COMPUTE_WEIGHT` (~L6849) with
+`GWKAverageOrModeComputeSourceCoords` (~L6919).
+
+**What:**
+
+- `iSrcXMin = max(floor(dfXMin + eps), 0)`.
+- When the transformed box starts left of the source (`dfXMin < 0`), the
+  first column's weight is `1 - (dfXMin - iSrcXMin) = 1 - dfXMin`, which is
+  greater than 1. The last column and the rows behave the same at the far
+  edges.
+- So source edge pixels are overweighted, roughly in proportion to how far
+  the destination pixel hangs off the source.
+
+**Repro:** rwarp fixture `average_overhang`: a 20x20 destination of 4-unit
+pixels over [-8, 72] squared, against a 64x64 source. rwarp matches GDAL
+exactly only when it applies the same >1 weights.
+
+**Question for upstream:** intended (extrapolating the edge value into the
+missing area) or not? A clipped footprint would use
+`1 - (max(dfXMin, 0) - iSrcXMin)`.
+
+Context: `average` measures overlap in source pixel space, on the
 axis-aligned box between the transformed top-left and bottom-right corners
-of the destination pixel (`GWKAverageOrModeComputeLineCoords` ~L6873,
-`GWKAverageOrModeComputeSourceCoords` ~L6919, which the code calls "an
-approximative fix"). With rotation the box can collapse: for a 45 degree
-pixel gdalwarp gives 5.0 where the exact area-weighted mean is 4.5.
+of the destination pixel (`GWKAverageOrModeComputeLineCoords` ~L6873; the
+code calls it "an approximative fix"). With rotation the box can collapse:
+for a 45 degree pixel gdalwarp gives 5.0 where the exact area-weighted mean
+is 4.5.
 
-## 5. Float working type defeats destination nodata avoidance - from fixtures
+## 5. Float working type defeats destination-nodata avoidance for integer outputs - confirmed
 
-`AvoidNoData` checks the float value before `GDALCopyWords` rounds it to
-the output type. A Float32 working value 0.2 written to Byte with
-`-dstnodata 0` passes the check and then rounds to 0, so a valid pixel
-silently becomes nodata.
+**Where:** `AvoidNoData` (~L1613) runs in the kernel on the working-type
+value. Conversion to the output type happens afterwards, in `GDALCopyWords`
+(`gcore/gdal_priv_templates.hpp`; float to int rounds half away from zero).
 
-To check: the exact repro command, and whether the rounding happens in
-`GDALCopyWords` for every output type.
+**What:**
+
+- With a float working type (e.g. a Float32 source warped to `-ot Byte`),
+  the kernel compares the float result with the destination nodata. 0.2 is
+  not equal to nodata 0, so it isn't adjusted.
+- It is then rounded to 0 on write, which is nodata. A valid pixel silently
+  becomes nodata, with no warning.
+- With an integer working type, the same case is adjusted to 1, with a
+  warning.
+
+```
+Float32 1x2 [[0.2, 1.0]], -r near, -dstnodata 0, -ot Byte -> [[0, 1]]
+```
+
+**Suggested fix:** when the destination band is an integer type and differs
+from the working type, also apply the avoidance check to the value after
+rounding to the destination type; or check at write time.
+
+## 6. (Minor) Two rounding rules into integer outputs - confirmed, docs
+
+Rounding into an integer output depends on the working type, i.e. on the
+source type:
+
+- **Integer working type:** the kernel rounds half up (`floor(x + 0.5)`,
+  `ClampRoundAndAvoidNoData` ~L1856), so -2.5 becomes -2.
+- **Float working type:** `GDALCopyWords` rounds half away from zero, so
+  -2.5 becomes -3.
+
+So an Int16 source and a Float32 source with the same values, both averaged
+into Int16, can differ by 1 on negative halves. Probably not worth changing;
+worth a sentence in the gdalwarp docs (`-ot`, `-wt`).
 
 ## Not bugs, recorded for reference
 
@@ -106,16 +208,16 @@ To check: the exact repro command, and whether the rounding happens in
   override the per-chunk scale estimate (~L1289-1292). The support radius is
   `ceil(radius / scale)` only when scale < 1 (~L1319); the kernel is
   evaluated at `(i - delta) * scale` with scale clamped to at most 1
-  (~L4854, ~L4964). Bilinear and cubic widen only once scale <= 0.5 (below
+  (~L4854, ~L4964). Bilinear and cubic widen only once scale <= 0.5 (above
   that GDAL uses the 4-sample point formula, `CanUse4SamplesFormula`
   ~L1041); lanczos widens at any scale below 1.
 - **Geolocation arrays.** `GEOREFERENCING_CONVENTION` defaults to
   `TOP_LEFT_CORNER` (`alg/gdalgeoloc.cpp`, `GDALCreateGeoLocTransformerEx`).
   CF-style centre coordinates read through the default land half a cell
   off; `PIXEL_CENTER` places cell edges at midpoints between centres.
-  Tested in hypertidy/rwarp#2. The netCDF driver may or may not set
+  Tested in hypertidy/rwarp#2 (GDAL 3.8.4). Whether the netCDF driver sets
   `PIXEL_CENTER` itself for CF coordinates: to check.
 - **Warping to a curvilinear target** works with `DST_METHOD=GEOLOC_ARRAY`
-  and a target dataset carrying geolocation arrays (tested in
-  hypertidy/rwarp#2, GDAL 3.8.4). Whether a warped VRT can serialise a
-  destination geolocation transformer is unchecked.
+  and a target dataset carrying geolocation arrays (hypertidy/rwarp#2,
+  GDAL 3.8.4). Whether a warped VRT can serialise a destination geolocation
+  transformer is unchecked.

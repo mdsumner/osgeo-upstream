@@ -34,16 +34,18 @@ No tracker issues yet.
 
 ## Warp kernels (found 2026-10-28, parked)
 
-Findings: [notes/2026-10-28-gdalwarp-kernel-findings.md](notes/2026-10-28-gdalwarp-kernel-findings.md).
-Fixtures in hypertidy/rwarp branch `kernels/gdal-parity`. No tracker issues yet.
+Findings: [notes/2026-10-28-gdalwarp-kernel-findings.md](notes/2026-10-28-gdalwarp-kernel-findings.md),
+repro [notes/2026-10-28-gdalwarp-kernel-repro.py](notes/2026-10-28-gdalwarp-kernel-repro.py).
+Fixtures in hypertidy/rwarp#3 (branch `kernels/gdal-parity`). No tracker issues yet.
 
 | Item | Where | Status | P | Next step |
 |---|---|---|---|---|
-| `MODE_TIES` ignored on a value's first occurrence for wider types (Int32/Float differ from Byte) | notes, item 1 | parked | P2 | Check on master; small repro script here from the rwarp fixture |
-| `MODE_TIES=FIRST` docs say "first encountered", code keeps first to reach the count | notes, item 2 | parked | P3 | Docs wording, or decide which is intended |
-| Scale estimate ignores the chunk offset in multi-chunk warps | notes, item 3 | parked | P2 | Verify with a multi-chunk polar warp before anything else |
-| `average` edge weight above 1 when the footprint overhangs the source | notes, item 4 | parked | P3 | Ask whether intended |
-| Float working type defeats dst nodata avoidance (0.2 -> Byte 0) | notes, item 5 | parked | P3 | Write the exact repro |
+| Kernel scale estimate ignores the chunk's destination offset; chunked warps widen by the wrong amount (also on 3.8.4) | notes, item 3 | parked | P1 | Confirm on master; one-line fix candidate (add nDstXOff/nDstYOff to the sample points) |
+| `MODE_TIES=MIN/MAX` ignored on a value's first occurrence for 32/64-bit and float types | notes, item 1 | parked | P2 | Confirm on master; repro is 1 pixel |
+| Float working type defeats dst nodata avoidance (0.2 -> Byte 0 = nodata, no warning; also on 3.8.4) | notes, item 5 | parked | P2 | Confirm on master |
+| `MODE_TIES=FIRST` docs say "first encountered", code keeps first to reach the count | notes, item 2 | parked | P3 | Docs wording |
+| `average`/`mode` edge weight above 1 when the footprint overhangs the source | notes, item 4 | parked | P3 | Ask whether intended |
+| Two rounding rules into integer outputs depending on working type (also on 3.8.4) | notes, item 6 | parked | P3 | A docs sentence for `-ot`/`-wt` |
 
 ## vrt:// connection
 

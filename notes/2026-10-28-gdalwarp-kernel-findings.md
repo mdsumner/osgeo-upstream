@@ -10,9 +10,9 @@ answering questions 1-4 in charles-turner-bot/arrir#22 (`plans/warp.md`).
   (`3.14.0dev-739fcf03bf`).
 - Fixture generator: rwarp `tests/fixtures/kernels/gen.py`.
 - Repro script: [2026-10-28-gdalwarp-kernel-repro.py](2026-10-28-gdalwarp-kernel-repro.py)
-  (items 1, 2, 3, 5, 6, 7). Run on GDAL 3.8.4: items 2, 3, 5 and 6 reproduce
+  (items 1-7). Run on GDAL 3.8.4: items 2, 3, 5 and 6 reproduce
   there too, so they are long-standing; item 1 needs GDAL >= 3.11
-  (`MODE_TIES`). Item 7 checked on 3.14.0dev only.
+  (`MODE_TIES`). Items 4 and 7 checked on 3.14.0dev only.
 - All repros re-run on 2026-10-28 with `3.14.0dev-739fcf03bf`, which was
   OSGeo master that day.
 
@@ -155,9 +155,18 @@ place. rwarp's `estimate_scale` adds the offset.
 - So source edge pixels are overweighted, roughly in proportion to how far
   the destination pixel hangs off the source.
 
-**Repro:** rwarp fixture `average_overhang`: a 20x20 destination of 4-unit
-pixels over [-8, 72] squared, against a 64x64 source. rwarp matches GDAL
-exactly only when it applies the same >1 weights.
+**Repro:** source `[[1, 2, 3, 4]]` over x 0..4, warped to one pixel
+(repro script, item 4):
+
+```
+average over [-1, 3]  1.75   weights 2, 1, 1   (clipped: 2)
+average over [2, 6]   3.75   weights 1, 3      (clipped: 3.5)
+mode (Byte) over [1, 5]  4   4 has weight 2    (clipped: 2, 3, 4 tie, FIRST gives 2)
+```
+
+Larger case: rwarp fixture `average_overhang`, a 20x20 destination of
+4-unit pixels over [-8, 72] squared, against a 64x64 source. rwarp matches
+GDAL exactly only when it applies the same >1 weights.
 
 **Question for upstream:** intended (extrapolating the edge value into the
 missing area) or not? A clipped footprint would use

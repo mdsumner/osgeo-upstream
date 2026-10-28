@@ -14,10 +14,27 @@ proportion to how far the target pixel hangs off the source.
 
 ### Steps to reproduce the issue
 
-A 64x64 source with unit pixels over [0, 64], warped with `-r average` to a
-20x20 grid of 4-unit pixels over [-8, 72]. The edge target pixels' means
-match only with weights above 1 for the edge source pixels. (Case
-`average_overhang` in hypertidy/rwarp `tests/fixtures/kernels/gen.py`.)
+```python
+from osgeo import gdal
+import numpy as np
+gdal.UseExceptions()
+ds = gdal.GetDriverByName("MEM").Create("", 4, 1, 1, gdal.GDT_Float32)
+ds.SetGeoTransform([0, 1, 0, 1, 0, -1])
+ds.GetRasterBand(1).WriteArray(np.array([[1, 2, 3, 4]]))
+for x0, x1 in ((-1, 3), (2, 6)):
+    o = gdal.Warp("", ds, format="MEM", resampleAlg="average", width=1, height=1,
+                  outputBounds=[x0, 0, x1, 1])
+    print(x0, x1, o.ReadAsArray().tolist())
+```
+
+```
+-1 3 [[1.75]]   # weights 2, 1, 1; clipped footprint would give 2.0
+2 6 [[3.75]]    # weights 1, 3;    clipped footprint would give 3.5
+```
+
+`mode` is affected the same way: a Byte source over [1, 5] gives 4 (weight
+2), where clipped weights would tie 2, 3, 4 and `MODE_TIES=FIRST` would
+give 2.
 
 ### Question
 
@@ -28,5 +45,4 @@ If not, the clipped weight would be `1 - (max(dfXMin, 0) - iSrcXMin)`.
 
 GDAL 3.14.0dev-739fcf03bf, self-built, Ubuntu 24.04.
 
-<!-- Before filing: a standalone repro snippet would help; there isn't one
-yet. Declaration as in the other drafts. -->
+<!-- Declaration as in the other drafts. -->

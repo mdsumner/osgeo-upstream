@@ -32,3 +32,4 @@ relying on the fact.
 | 2026-10-28 | GDAL 3.8.4: gdal.Warp onto a target with geolocation arrays (`DST_METHOD=GEOLOC_ARRAY`) works; nearest output matched by rwarp pixel for pixel | hypertidy/rwarp `tests/geoloc.rs`, `curvilinear_target_*` |
 | 2026-10-28 | GDAL 3.14.0dev (739fcf03bf, master that day): warp kernel items 1, 2, 3, 5, 6 reproduce with the standalone repro script, not only the rwarp fixtures | `python notes/2026-10-28-gdalwarp-kernel-repro.py` |
 | 2026-10-28 | GDAL 3.14.0dev: `-r cubicspline` downsampling a symmetric source 64 -> 23 columns gives an asymmetric result (max 5.83e-05); cubic and lanczos are exactly symmetric. `GWKBSpline` omits the `(x-2)^3_+` term | repro script, item 7 |
+| 2026-10-28 | GDAL 3.14.0dev: source [[1, 2, 3, 4]] over x 0..4, `-r average` to one pixel over [-1, 3] gives 1.75 (edge weight 2), over [2, 6] gives 3.75 (edge weight 3); Byte `-r mode` over [1, 5] gives 4 | repro script, item 4 |

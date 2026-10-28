@@ -1,15 +1,15 @@
-"""Repros for notes/2026-10-28-gdalwarp-kernel-findings.md, items 1, 2, 3, 5, 6, 7.
+"""Repros for notes/2026-10-28-gdalwarp-kernel-findings.md, items 1-7.
 
 Assembled from the rwarp kernel-parity notes (hypertidy/rwarp#3). The
 cases were checked with gdalwarp 3.14.0dev-739fcf03bf. This script was run
 on GDAL 3.8.4 (Ubuntu 24.04), where items 2, 3, 5 and 6 reproduce; item 1
 needs GDAL >= 3.11 (MODE_TIES is ignored before that, so all types print
-5 5 5). Item 7 was added later and checked on 3.14.0dev only.
+5 5 5). Items 4 and 7 were added later and checked on 3.14.0dev only.
 
     python notes/2026-10-28-gdalwarp-kernel-repro.py
 
-Item 4 has no standalone repro here; see rwarp tests/fixtures/kernels/gen.py,
-case average_overhang.
+Item 4's larger fixture is rwarp tests/fixtures/kernels/gen.py, case
+average_overhang.
 """
 
 import numpy as np
@@ -72,6 +72,26 @@ def item3():
     print("   (observed on 3.14.0dev: 319985 to 320000 of 320000 across runs, max 0.113)")
 
 
+def item4():
+    print("4. average/mode, source [[1, 2, 3, 4]] over x 0..4, one target pixel overhanging the source")
+    print("   GDAL weights the edge source pixel 1 + overhang; a clipped footprint would weight it 1")
+    for x0, x1, gdal_w, clip_w in ((-1, 3, [2, 1, 1, 0], [1, 1, 1, 0]),
+                                   (2, 6, [0, 0, 1, 3], [0, 0, 1, 1])):
+        v = np.array([1, 2, 3, 4])
+        ds = mem([v], gdal.GDT_Float32)
+        o = gdal.Warp("", ds, format="MEM", resampleAlg="average", width=1, height=1,
+                      outputBounds=[x0, 0, x1, 1])
+        got = float(o.GetRasterBand(1).ReadAsArray()[0, 0])
+        print(f"   average over [{x0}, {x1}]: {got:g}  (weights {gdal_w}: "
+              f"{np.dot(v, gdal_w) / sum(gdal_w):g}; clipped {clip_w}: {np.dot(v, clip_w) / sum(clip_w):g})")
+    # Byte uses the histogram mode path, so item 1 doesn't interfere
+    ds = mem([[1, 2, 3, 4]], gdal.GDT_Byte)
+    o = gdal.Warp("", ds, format="MEM", resampleAlg="mode", width=1, height=1,
+                  outputBounds=[1, 0, 5, 1])
+    print(f"   mode (Byte) over [1, 5]: {int(o.GetRasterBand(1).ReadAsArray()[0, 0])}"
+          "  (4 has weight 2 -> 4; clipped, 2 3 4 tie and FIRST gives 2)")
+
+
 def item5():
     print("5. Float working type, -dstnodata 0, -ot Byte: [[0.2, 1.0]] -> expect [[1, 1]], observed [[0, 1]]")
     ds = mem([[0.2, 1.0]], gdal.GDT_Float32)
@@ -108,6 +128,7 @@ if __name__ == "__main__":
     item1()
     item2()
     item3()
+    item4()
     item5()
     item6()
     item7()

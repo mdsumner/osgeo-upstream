@@ -51,7 +51,7 @@ a response.
 | `MODE_TIES=MIN/MAX` ignored on a value's first occurrence for 32/64-bit and float types, plus the `MODE_TIES=FIRST` docs wording (first to reach the count, not first encountered) | notes, items 1 and 2; draft 02 | ready | P2 | File second, one issue for both |
 | Float working type defeats dst nodata avoidance (0.2 -> Byte 0 = nodata, no warning; also on 3.8.4), with the two rounding rules into integer outputs as context | notes, items 5 and 6; draft 03 | ready | P2 | File third; the rounding point may only need a docs sentence for `-ot`/`-wt` |
 | `cubicspline` weight not zero beyond \|x\| = 2; downsampled output asymmetric (~1e-4) | notes, item 7; draft 04 | ready | P3 | File fourth. Fix: return 0 for \|x\| >= 2 in GWKBSpline and GWKBSpline4Values |
-| `average`/`mode` edge weight above 1 when the footprint overhangs the source | notes, item 4; draft 05 | idea | P3 | A question, maybe a discussion or gdal-dev post. Needs a standalone repro first |
+| `average`/`mode` edge weight above 1 when the footprint overhangs the source | notes, item 4; draft 05 | ready | P3 | File last, as a question; maybe a discussion or gdal-dev post instead |
 
 ## vrt:// connection
 

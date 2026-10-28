@@ -26,9 +26,8 @@ OSGeo master at the time (a fresh fetch had no newer commits).
 | [05-average-overhang-question.md](05-average-overhang-question.md) | `average`/`mode` edge weights above 1 when the footprint overhangs the source (4) | question, maybe intentional | last, or a discussion instead |
 
 Repros: [../2026-10-28-gdalwarp-kernel-repro.py](../2026-10-28-gdalwarp-kernel-repro.py)
-covers items 1, 2, 3, 5, 6 and 7 (item 3 prints the `dfYScale` debug lines);
-each draft also inlines a minimal snippet. Item 4 still has no standalone
-repro.
+covers items 1-7 (item 3 prints the `dfYScale` debug lines); each draft
+also inlines a minimal snippet.
 
 Pace (STRATEGY.md): file one at a time, not as a burst, and offer a PR
 only once the issue has had a response.

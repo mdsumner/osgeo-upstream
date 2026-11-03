@@ -7,7 +7,8 @@ involves. Code locations are GDAL master `5906ed4` (2026-11-03), read, not
 built. The repro has not been run against GDAL yet.
 
 Repro: [2026-11-03-zarr-codec-repro.py](2026-11-03-zarr-codec-repro.py)
-writes six tiny stores (same 4 x 6 Int16 array, 2 x 3 chunks) with
+writes eight tiny stores (the same 4 x 6 Int16 array, or a Float32 one for
+the floatpred pair, 2 x 3 chunks) with
 zarr-python and imagecodecs, then reads each with GDAL and compares:
 
 ```
@@ -25,9 +26,11 @@ v3_numcodecs_zstd          bytes, numcodecs.zstd {level: 1}
 v3_imagecodecs_delta_zstd  imagecodecs_delta {axis: -1, dist: 1}, bytes, numcodecs.zstd {level: 1}
 v2_shuffle_zlib            filters [shuffle {elementsize: 2}], compressor zlib
 v2_imagecodecs_delta_zstd  filters [imagecodecs_delta {axis: -1, dist: 1, shape: [2, 3], dtype: <i2}], compressor zstd
+v3_imagecodecs_floatpred_zstd  imagecodecs_floatpred {axis: -1, dist: 1} (array to bytes, no bytes codec), numcodecs.zstd {level: 1}
+v2_imagecodecs_floatpred_zstd  filters [imagecodecs_floatpred {axis: -1, dist: 1, shape: [2, 3], dtype: <f4}], compressor zstd
 ```
 
-Expected from reading master: `v2_shuffle_zlib` OK, the other five fail.
+Expected from reading master: `v2_shuffle_zlib` OK, the other seven fail.
 
 ## What master has
 
@@ -65,9 +68,10 @@ numcodecs (numcodecs.zarr3), so these names are common in the wild.
 | C3 | V3 `numcodecs.shuffle` | one small bytes-to-bytes class over the existing shuffle decoder | zarr_v3_codec_*.cpp | Config `elementsize` maps to `ELEMENTSIZE`. |
 | C4 | V3 `imagecodecs_delta` | array-to-array class, like `ZarrV3CodecTranspose` | zarr_v3_codec_*.cpp | Gets the chunk shape from the input array metadata, so no config shape is needed. Decode only is enough to start. |
 | C5 | V2 `imagecodecs_delta` filter | revive fork branch `zarr-tiff-predictor-DRAFT` | zarr_filters.cpp, zarr_v2_array.cpp (both places above) | See below. |
+| C6 | `imagecodecs_floatpred` (TIFF PREDICTOR=3), V2 filter and V3 codec | the draft's predictor 3 branch, fixed (see below) | same places as C4, C5 | In V3 it is an array-to-bytes codec that replaces `bytes`, not array-to-array like delta. |
 
 C1 to C3 are one concern (numcodecs.* names in Zarr V3) and could be one
-issue and one PR. C4 and C5 are the TIFF predictor, a second issue.
+issue and one PR. C4 to C6 are the TIFF predictors, a second issue.
 
 ### Notes for C4 and C5 (TIFF predictor)
 
@@ -81,9 +85,24 @@ issue and one PR. C4 and C5 are the TIFF predictor, a second issue.
   reads the fixture wrong too. raad.virtualize (R/mdimrefs.R) and tifffile
   write `shape` and `dtype`, so GDAL can rely on them, or on the chunk size.
 - Scope to start: integer types, `axis: -1`, `dist: 1`, unsigned wrap
-  arithmetic (as libtiff does), which the draft already does. Float
-  predictor (PREDICTOR=3, `imagecodecs_floatpred`) is a separate later item
-  and nothing in the current stores needs it.
+  arithmetic (as libtiff does), which the draft already does.
+
+### Notes for C6 (floating point predictor)
+
+- Why it matters: ESA CCI chl-a Float32 COGs without a predictor compress
+  only about 2x (75 MB a file, about 75 GB for the series). PREDICTOR=3
+  would likely save a third or more, but only once GDAL Zarr / kerchunk
+  can decode it; until then a predictor-3 COG reads through GDAL's GTiff
+  driver and the VRT, but not through the virtual stores.
+- The draft's predictor 3 branch has the byte order of libtiff's big
+  endian build. libtiff `fpAcc` on a little endian host writes
+  `cp[bps*i + b] = tmp[(bps - b - 1)*wc + i]` (the planes are stored most
+  significant byte first); the draft writes `tmp[b*wc + i]`. Checked in
+  Python against `imagecodecs.floatpred_encode` on a 2 x 3 Float32 chunk:
+  the reversed order round-trips, the draft's order does not. The fixture
+  pair above catches it.
+- Row length is `shape[-1]` samples, and the byte differencing runs over
+  `shape[-1] * itemsize` bytes per row, as in the draft.
 - The draft adds as native integers on raw bytes, which is right on little
   endian hosts for `<i2`; the V3 array-to-array form runs after `bytes`, so
   it sees native order and avoids the question.
@@ -98,6 +117,6 @@ issue and one PR. C4 and C5 are the TIFF predictor, a second issue.
 2. Search GDAL issues for `numcodecs.` and `imagecodecs_delta` first.
 3. Issue: Zarr V3 `numcodecs.*` names (C1 to C3), with the three V3 fixture
    lines and the BRAN `/vsiicechunk/` error. Then one PR.
-4. Issue: TIFF predictor (`imagecodecs_delta`) for V2 and V3, asking about
-   the name. PR after a response (C5 first if the draft is the quicker
-   route, C4 next).
+4. Issue: TIFF predictors (`imagecodecs_delta`, `imagecodecs_floatpred`)
+   for V2 and V3, asking about the names. PR after a response (C5 first if
+   the draft is the quicker route, then C4, then C6).

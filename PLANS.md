@@ -4,7 +4,7 @@ One table of everything in flight or proposed: open tracker issues, live fork
 branches and new items from the 2026-10-25 sweep. Status words match the
 `status:` labels. Priorities are provisional; see PRIORITIES.md for the order.
 
-Last updated 2026-10-28.
+Last updated 2026-11-03.
 
 ## Multidim, byte references and Zarr
 
@@ -15,7 +15,12 @@ Last updated 2026-10-28.
 | Zarr V3 fill_value vs nodata survey (WP7a of #39) | [#41](https://github.com/mdsumner/osgeo-upstream/issues/41) | idea | P1 | Survey note in notes/, with small stores from zarr-python, xarray, GDAL |
 | Expose ReadCompressedData() to Python | [#35](https://github.com/mdsumner/osgeo-upstream/issues/35) | idea | P2 | Check what SWIG has now; C API exists since 2023 (#7081) |
 | Pick up `mdim info --detailed` default limit | [#34](https://github.com/mdsumner/osgeo-upstream/issues/34), PR OSGeo/gdal#13723 (another contributor, unmerged) | idea | P2 | Check #13723 review state; `mdim info` changed since (text/json, 2026-06) |
-| Zarr codec drafts: JPEG, TIFF predictor | [#42](https://github.com/mdsumner/osgeo-upstream/issues/42), branches zarr-jpeg, zarr-tiff-predictor-DRAFT | idea | P2 | Upstream issue asking if wanted, before code |
+| Zarr V3 `numcodecs.*` names: `numcodecs.zstd`, `numcodecs.zlib`, `numcodecs.shuffle` (blocks `/vsiicechunk/` on BRAN) | [#42](https://github.com/mdsumner/osgeo-upstream/issues/42), [notes/2026-11-03-zarr-codec-gaps.md](notes/2026-11-03-zarr-codec-gaps.md) C1-C3 | ready | P1 | Run the repro on master, search GDAL issues, then one issue + one PR |
+| TIFF predictor as `imagecodecs_delta`, Zarr V2 filter and V3 codec (blocks kerchunk and `/vsiicechunk/` on GHRSST MUR COGs) | [#42](https://github.com/mdsumner/osgeo-upstream/issues/42), branch zarr-tiff-predictor-DRAFT, notes C4-C5 | ready | P1 | Issue asking about the name, after the numcodecs one |
+| Zarr JPEG codec draft | [#42](https://github.com/mdsumner/osgeo-upstream/issues/42), branch zarr-jpeg | idea | P3 | No store needs it yet |
+| `/vsikerchunk_parquet_ref/`: row with null `path` and null `raw` read as a path, not a missing chunk ("Too large tile") | `frmts/zarr/vsikerchunk_parquet_ref.cpp` Open(), else branch after the `raw` check (master 5906ed4) | investigating | P2 | Small repro (one null row in refs.0.parq); fsspec treats it as missing |
+| HDF5 `GetRawBlockInfo()` on sparse files | fixed upstream by OSGeo/gdal PR 15423 (Dan Baston, 2026-10-29) | done | - | Close my upstream issue if still open |
+| `test_hdf5_multidim_getrawblockinfo_chunked` never runs: `@pytest.mark.require_driver("use_optim", [True, False])` instead of `parametrize` | `autotest/gdrivers/hdf5multidim.py:845` (master 5906ed4) | ready | P2 | One-line test fix; good warm-up PR |
 | HDF5 group variant (sinusoidal) | [#24](https://github.com/mdsumner/osgeo-upstream/issues/24) | idea | P3 | Re-read |
 | Kerchunk support | [#23](https://github.com/mdsumner/osgeo-upstream/issues/23) | done? | - | GDAL reads Kerchunk JSON and Parquet refs, and has an Icechunk driver (2026-06). Close if nothing is left |
 | Nulls in Parquet domain (implicit zero) | [#38](https://github.com/mdsumner/osgeo-upstream/issues/38) | idea | P3 | Re-read |

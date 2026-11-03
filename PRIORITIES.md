@@ -6,6 +6,12 @@ merge or rejection.
 
 ## Now (P1)
 
+Order set 2026-11-03: Zarr codecs first, then block-info (get-refs), which
+is becoming pressing for the virtual stores.
+
+0. **Zarr codecs (#42).** `numcodecs.*` names in Zarr V3, then the TIFF
+   predictor (`imagecodecs_delta`). Note and repro:
+   notes/2026-11-03-zarr-codec-gaps.md.
 1. **mdim get-refs (#36, PR #14677).** The most valuable open work: byte
    references for multidimensional arrays feed virtual stores (Kerchunk,
    Icechunk, VirtualiZarr) and wxylib, which uses GDAL as a test oracle.

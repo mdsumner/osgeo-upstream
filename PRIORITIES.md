@@ -2,7 +2,8 @@
 
 Provisional, 2026-10-25. Ordered by value to me and to downstream users,
 then by how cheaply a maintainer can say yes. Revisit after each upstream
-merge or rejection.
+merge or rejection. The generated, label-driven view is RUNDOWN.md; keep
+the `P` labels on issues in step with this list.
 
 ## Now (P1)
 

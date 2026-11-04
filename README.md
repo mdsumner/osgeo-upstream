@@ -16,11 +16,21 @@ Not an OSGeo project.
 |---|---|
 | [CONTRIBUTIONS.md](CONTRIBUTIONS.md) | Work already merged upstream |
 | [PLANS.md](PLANS.md) | Everything in flight or proposed, with status |
-| [PRIORITIES.md](PRIORITIES.md) | What to work on next, in order |
+| [RUNDOWN.md](RUNDOWN.md) | Ranked open issues, generated from labels; start here |
+| [PRIORITIES.md](PRIORITIES.md) | What to work on next, in order, and why |
 | [STRATEGY.md](STRATEGY.md) | Direction, themes and how contributions are made |
 | [LEDGER.md](LEDGER.md) | Learnt facts and the check behind each |
 | [notes/](notes/) | Sweeps, triage notes, repros |
 | [scripts/sweep.sh](scripts/sweep.sh) | Re-runs the status sweep (read-only git) |
+| [scripts/rundown.py](scripts/rundown.py) | Renders RUNDOWN.md (also run by an Action on every issue change) |
+
+## Intake
+
+Found a bug, limitation or need in GDAL, PROJ or GEOS while working on
+something downstream? Open an issue with the
+[upstream gap form](../../issues/new?template=upstream-gap.yml). It lands in
+the RUNDOWN.md Inbox with a suggested priority; add a `P` label and an area
+label to rank it.
 
 ## Labels
 

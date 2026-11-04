@@ -1,0 +1,61 @@
+name: Upstream gap
+description: A bug, limitation or need in GDAL, PROJ or GEOS found while working on something downstream.
+title: "GDAL: "
+labels: ["status:idea"]
+body:
+  - type: dropdown
+    id: project
+    attributes:
+      label: Project
+      options:
+        - GDAL
+        - PROJ
+        - GEOS
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      options:
+        - bug
+        - limitation
+        - need
+    validations:
+      required: true
+  - type: input
+    id: found
+    attributes:
+      label: Found in
+      description: The downstream project or task, e.g. raad.virtualize, wxylib, rwarp, VirtualiZarr.
+    validations:
+      required: true
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact
+      description: Sets the suggested priority in RUNDOWN.md (P1, P2, P3).
+      options:
+        - blocks downstream work
+        - workaround exists
+        - nice to have
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: One or two sentences. Driver, function or CLI, and GDAL version if known.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Repro
+      description: Smallest command or script that shows it, or a link to one in notes/.
+      render: python
+  - type: input
+    id: upstream
+    attributes:
+      label: Upstream link
+      description: Existing GDAL/PROJ/GEOS issue or PR, if any.

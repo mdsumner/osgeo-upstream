@@ -58,6 +58,19 @@ a response.
 | `cubicspline` weight not zero beyond \|x\| = 2; downsampled output asymmetric (~1e-4) | notes, item 7; draft 04 | ready | P3 | File fourth. Fix: return 0 for \|x\| >= 2 in GWKBSpline and GWKBSpline4Values |
 | `average`/`mode` edge weight above 1 when the footprint overhangs the source | notes, item 4; draft 05 | ready | P3 | File last, as a question; maybe a discussion or gdal-dev post instead |
 
+## WMS/WMTS overview colour interpretation (found 2026-11-05)
+
+Findings: [notes/2026-11-05-overview-colour-interp.md](notes/2026-11-05-overview-colour-interp.md),
+repro [notes/2026-11-05-overview-colour-interp-repro.py](notes/2026-11-05-overview-colour-interp-repro.py).
+Found in mdsumner/warp-sandbox. Confirmed on `3.14.0dev-739fcf03bf`; not yet
+checked on master after that, or on older releases.
+
+| Item | Where | Status | P | Next step |
+|---|---|---|---|---|
+| WMS overview bands report `GCI_Undefined`; the overview loop re-sets the base band instead | notes, item 1 | ready | P2 | Check master, then one small PR: copy `m_color_interp` in `AddOverview`, with a test opening a TMS description (offline) |
+| WMTS overview bands (VRT over WMS) report `GCI_Undefined` | notes, item 2 | ready | P2 | Same PR or a second one: set colour interpretation on the VRT bands |
+| `OVERVIEW_LEVEL` opens lose the alpha band, so warps treat alpha as data | notes, item 3 | follows | P3 | Mention as the motivation in the PR; nothing separate to file |
+
 ## vrt:// connection
 
 | Item | Where | Status | P | Next step |

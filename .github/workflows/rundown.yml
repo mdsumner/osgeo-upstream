@@ -24,12 +24,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python3 scripts/rundown.py > RUNDOWN.md
+      - name: Render wishes.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 scripts/wishes.py > wishes.json
       - name: Commit if changed
         run: |
-          git diff --quiet RUNDOWN.md && exit 0
+          git add -N wishes.json
+          git diff --quiet RUNDOWN.md wishes.json && exit 0
           git config user.name "github-actions[bot]"
           git config user.email "41898333+github-actions[bot]@users.noreply.github.com"
-          git add RUNDOWN.md
-          git commit -m "RUNDOWN: regenerate"
+          git add RUNDOWN.md wishes.json
+          git commit -m "RUNDOWN, wishes: regenerate"
           git pull --rebase origin main
           git push origin HEAD:main

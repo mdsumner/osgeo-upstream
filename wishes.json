@@ -59,13 +59,13 @@
   },
   {
    "number": 59,
-   "title": "Review GDAL PR 15305: Zarr V3 scale_offset and cast_value read",
+   "title": "Test GDAL PR 15305: Zarr V3 scale_offset and cast_value read",
    "url": "https://github.com/mdsumner/osgeo-upstream/issues/59",
    "priority": "P1",
    "status": "ready",
    "area": "gdal:zarr",
    "upstream": null,
-   "search": "Review GDAL PR 15305: Zarr V3 scale_offset and cast_value read",
+   "search": "Test GDAL PR 15305: Zarr V3 scale_offset and cast_value read",
    "search_source": "title"
   },
   {

@@ -21,7 +21,7 @@ items without an issue yet: [PLANS.md](PLANS.md).
 |---|---|---|---|---|---|
 | [#42](https://github.com/mdsumner/osgeo-upstream/issues/42) | Zarr codec drafts: JPEG and TIFF predictor | gdal:zarr | ready | - | 1d |
 | [#50](https://github.com/mdsumner/osgeo-upstream/issues/50) | gdalwarp: kernel scale estimate ignores the chunk's destination offset | gdal:warp | ready | wxylib | 8d |
-| [#59](https://github.com/mdsumner/osgeo-upstream/issues/59) | Review GDAL PR 15305: Zarr V3 scale_offset and cast_value read | gdal:zarr | ready | - | 0d |
+| [#59](https://github.com/mdsumner/osgeo-upstream/issues/59) | Test GDAL PR 15305: Zarr V3 scale_offset and cast_value read | gdal:zarr | ready | - | 0d |
 | [#36](https://github.com/mdsumner/osgeo-upstream/issues/36) | get-refs todo | gdal:mdim | upstream | wxylib | 11d |
 | [#39](https://github.com/mdsumner/osgeo-upstream/issues/39) | Triage: closed GDAL PRs 15388-15398 (Zarr / multidim / AdviseRead) | gdal:zarr | investigating | wxylib | 11d |
 | [#41](https://github.com/mdsumner/osgeo-upstream/issues/41) | Zarr V3 fill_value vs nodata: survey of writers and readers | gdal:zarr | investigating | wxylib | 11d |

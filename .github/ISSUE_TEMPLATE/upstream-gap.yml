@@ -59,3 +59,8 @@ body:
     attributes:
       label: Upstream link
       description: Existing GDAL/PROJ/GEOS issue or PR, if any.
+  - type: input
+    id: search
+    attributes:
+      label: Search words
+      description: Words an upstream reporter would use for this, synonyms included (e.g. "zarr tiff predictor delta kerchunk"). Feeds the issuescope picker via wishes.json.

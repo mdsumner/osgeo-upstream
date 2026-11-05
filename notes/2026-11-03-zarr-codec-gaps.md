@@ -110,13 +110,35 @@ issue and one PR. C4 to C6 are the TIFF predictors, a second issue.
   as far as checked; ask upstream whether GDAL accepts that name, since
   VirtualiZarr / virtual_tiff / tifffile output uses it.
 
+## Existing upstream threads (found 2026-11-05 with issuescope)
+
+Searching the GDAL tracker (mdsumner/issue-triage) for these codecs found:
+
+- OSGeo/gdal issue 14917, "Zarr: read/decode for numcodecs shuffle and zlib
+  in V3" (open, enhancement, 2026-07-06): this is C2 and C3. Add to it
+  rather than open a new issue: the BRAN `/vsiicechunk/` error, the fixture
+  lines, and `numcodecs.zstd` (C1) as the third name.
+- OSGeo/gdal issue 14833, "Zarr/Icechunk driver: an array with an
+  unsupported codec is omitted from the listing" (open): the listing side
+  of the same gap; worth a mention in 14917.
+- OSGeo/gdal issue 15170, "Zarr: add support for decoding the V3
+  scale_offset and cast_value codecs" (open, enhancement): neighbouring
+  codec work; read it for how a maintainer wants a new V3 codec shaped.
+- OSGeo/gdal issue 15380, "Zarr: downsampled read of an array with
+  overviews first reads all full-resolution chunks" (open): the AdviseRead
+  item from #39 (WP3b), not a codec.
+
+The Zarr issues carry the label "not for AI lovers": every comment and
+patch on them must be plainly Michael's own.
+
 ## Suggested order
 
 1. Run the repro against GDAL master on the VM; record the six lines in
    LEDGER.md.
-2. Search GDAL issues for `numcodecs.` and `imagecodecs_delta` first.
-3. Issue: Zarr V3 `numcodecs.*` names (C1 to C3), with the three V3 fixture
-   lines and the BRAN `/vsiicechunk/` error. Then one PR.
+2. Search GDAL issues for each item first (done for C1 to C3, see above;
+   nothing found yet for the TIFF predictors).
+3. Comment on GDAL issue 14917 (C1 to C3) with the three V3 fixture lines
+   and the BRAN `/vsiicechunk/` error. Then one PR.
 4. Issue: TIFF predictors (`imagecodecs_delta`, `imagecodecs_floatpred`)
    for V2 and V3, asking about the names. PR after a response (C5 first if
    the draft is the quicker route, then C4, then C6).

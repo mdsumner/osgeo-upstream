@@ -4,13 +4,14 @@ One table of everything in flight or proposed: open tracker issues, live fork
 branches and new items from the 2026-10-25 sweep. Status words match the
 `status:` labels. Priorities are provisional; see PRIORITIES.md for the order.
 
-Last updated 2026-11-03.
+Last updated 2026-11-05.
 
 ## Multidim, byte references and Zarr
 
 | Item | Where | Status | P | Next step |
 |---|---|---|---|---|
-| `gdal mdim get-refs` algorithm | [#36](https://github.com/mdsumner/osgeo-upstream/issues/36), PR [OSGeo/gdal#14677](https://github.com/OSGeo/gdal/pull/14677), branches feature/mdim-get-refs, mdim-helpers, stage1-mvp, fast-path-h5-chunk-refs-iter | upstream (unmerged) | P1 | Confirm PR state and the last review; decide the route (see STRATEGY.md) |
+| `gdal mdim get-refs` algorithm | [#36](https://github.com/mdsumner/osgeo-upstream/issues/36), PR [OSGeo/gdal#14677](https://github.com/OSGeo/gdal/pull/14677), branches feature/mdim-get-refs, mdim-helpers, stage1-mvp, fast-path-h5-chunk-refs-iter | upstream (PR closed unmerged, 2026-07-11) | P1 | Decide the route (see STRATEGY.md) |
+| Zarr V3 `scale_offset` and `cast_value` read (GDAL issue 15170) | [#59](https://github.com/mdsumner/osgeo-upstream/issues/59), PR [OSGeo/gdal#15305](https://github.com/OSGeo/gdal/pull/15305) (open, unreviewed) | ready | P1 | Build the PR, test with a zarr-python store, comment |
 | Zarr and multidim bugs from closed PRs 15388-15398 | [#39](https://github.com/mdsumner/osgeo-upstream/issues/39) | investigating | P1 | WP2 and WP1: confirm on master, write repros here |
 | Zarr V3 fill_value vs nodata survey (WP7a of #39) | [#41](https://github.com/mdsumner/osgeo-upstream/issues/41) | idea | P1 | Survey note in notes/, with small stores from zarr-python, xarray, GDAL |
 | Expose ReadCompressedData() to Python | [#35](https://github.com/mdsumner/osgeo-upstream/issues/35) | idea | P2 | Check what SWIG has now; C API exists since 2023 (#7081) |

@@ -47,23 +47,22 @@ Working note, 2026-10-25. Provisional; edit freely.
 
 ## get-refs route (decision pending)
 
-Options for #14677:
+Options for PR 14677 (closed unmerged 2026-07-11):
 
 - **A. Land the core helpers first** (mdim-helpers: the part useful to gcore
   and the Zarr driver), then a slimmer `gdal mdim get-refs` on top. Smaller
   reviews, reuses existing smells (#36 lists the clean-ups).
-- B. Revive #14677 as is, with the #36 clean-ups applied.
+- B. Reopen PR 14677 as is, with the #36 clean-ups applied.
 - C. Ask on the PR or gdal-dev whether the maintainers want the algorithm in
   GDAL at all, or prefer the helpers plus an external tool.
 
-Provisional default: A, after reading the last review on #14677. stage1-mvp
+Provisional default: A. stage1-mvp
 and fast-path-h5-chunk-refs-iter stay as later follow-ups.
 
 ## Open questions
 
 - Which upstream issues did I open, and which are still open? (gap in
   CONTRIBUTIONS.md)
-- Is #14677 still open, and what did the last review ask for?
 - Does wxylib need anything from GDAL beyond get-refs and Zarr fixes?
 
 ## Measures

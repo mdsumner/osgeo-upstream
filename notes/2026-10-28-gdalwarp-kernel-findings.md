@@ -140,6 +140,16 @@ the transformer the way the threads do.
 estimate can vary between chunks. This is about it being taken at the wrong
 place. rwarp's `estimate_scale` adds the offset.
 
+**Seen on real data (2026-11-06, mdsumner/warp-sandbox):** COP90 (the
+OpenTopography VRT mosaic, `/vsicurl/https://opentopography.s3.sdsc.edu/raster/COP90/COP90_hh.vrt`)
+warped to EPSG:28355 over Tasmania, `-te 200000 5150000 650000 5600000 -ts
+560 560 -r bilinear -ovr NONE`, `3.14.0dev-739fcf03bf`. With the default
+`-wm`, gdalwarp splits the warp into chunks and differs from a one-chunk
+warp (`-wm 4G`) by up to **2.37 m** (about a third of the pixels differ);
+`-wm 4G` agrees with rwarp (one chunk, scale estimated at the chunk) to
+6.1e-5, Float32 rounding. The same request is the first in the sandbox big
+enough to chunk; every smaller one agreed exactly.
+
 ## 4. `average`/`mode` weight an edge pixel above 1 when the footprint overhangs - confirmed behaviour, may be intentional
 
 **Where:** `COMPUTE_WEIGHT_Y` / `COMPUTE_WEIGHT` (~L6849) with

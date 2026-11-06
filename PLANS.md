@@ -53,7 +53,7 @@ a response.
 
 | Item | Where | Status | P | Next step |
 |---|---|---|---|---|
-| Kernel scale estimate ignores the chunk's destination offset; chunked warps widen by the wrong amount (also on 3.8.4) | notes, item 3; draft 01 | ready | P1 | File first. Fix candidate: add nDstXOff/nDstYOff to the sample points |
+| Kernel scale estimate ignores the chunk's destination offset; chunked warps widen by the wrong amount (also on 3.8.4; real-data case 2026-11-06: COP90 over Tasmania, up to 2.37 m) | notes, item 3; draft 01 | ready | P1 | File first. Fix candidate: add nDstXOff/nDstYOff to the sample points. The COP90 case makes a good motivating example |
 | `MODE_TIES=MIN/MAX` ignored on a value's first occurrence for 32/64-bit and float types, plus the `MODE_TIES=FIRST` docs wording (first to reach the count, not first encountered) | notes, items 1 and 2; draft 02 | ready | P2 | File second, one issue for both |
 | Float working type defeats dst nodata avoidance (0.2 -> Byte 0 = nodata, no warning; also on 3.8.4), with the two rounding rules into integer outputs as context | notes, items 5 and 6; draft 03 | ready | P2 | File third; the rounding point may only need a docs sentence for `-ot`/`-wt` |
 | `cubicspline` weight not zero beyond \|x\| = 2; downsampled output asymmetric (~1e-4) | notes, item 7; draft 04 | ready | P3 | File fourth. Fix: return 0 for \|x\| >= 2 in GWKBSpline and GWKBSpline4Values |

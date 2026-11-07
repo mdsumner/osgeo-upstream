@@ -1,6 +1,6 @@
 {
  "repo": "mdsumner/osgeo-upstream",
- "generated": "2026-11-05",
+ "generated": "2026-11-07",
  "wishes": [
   {
    "number": 36,
@@ -385,6 +385,17 @@
    "area": "gdal:warp",
    "upstream": null,
    "search": "gdalwarp -cutline: all-touched, tolerance and blend findings from rwarp",
+   "search_source": "title"
+  },
+  {
+   "number": 61,
+   "title": "NSIDCbin: north geotransform origin is half a cell off (cell centre used as corner); EPSG 3411/3412 fit better",
+   "url": "https://github.com/mdsumner/osgeo-upstream/issues/61",
+   "priority": "P3",
+   "status": "ready",
+   "area": "gdal:drivers",
+   "upstream": null,
+   "search": "NSIDCbin: north geotransform origin is half a cell off (cell centre used as corner); EPSG 3411/3412 fit better",
    "search_source": "title"
   },
   {

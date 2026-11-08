@@ -1,6 +1,6 @@
 {
  "repo": "mdsumner/osgeo-upstream",
- "generated": "2026-11-07",
+ "generated": "2026-11-08",
  "wishes": [
   {
    "number": 36,
@@ -212,6 +212,17 @@
    "search_source": "title"
   },
   {
+   "number": 62,
+   "title": "gdalwarp: target across the antimeridian reads a full-width source strip",
+   "url": "https://github.com/mdsumner/osgeo-upstream/issues/62",
+   "priority": "P2",
+   "status": "ready",
+   "area": "gdal:warp",
+   "upstream": null,
+   "search": "gdalwarp: target across the antimeridian reads a full-width source strip",
+   "search_source": "title"
+  },
+  {
    "number": 10,
    "title": "gdalwarp crs-only heuristics",
    "url": "https://github.com/mdsumner/osgeo-upstream/issues/10",
@@ -396,6 +407,17 @@
    "area": "gdal:drivers",
    "upstream": null,
    "search": "NSIDCbin: north geotransform origin is half a cell off (cell centre used as corner); EPSG 3411/3412 fit better",
+   "search_source": "title"
+  },
+  {
+   "number": 63,
+   "title": "GTiff: AdviseRead() is a no-op, so separate windows over /vsicurl/ can't be prefetched together",
+   "url": "https://github.com/mdsumner/osgeo-upstream/issues/63",
+   "priority": "P3",
+   "status": "ready",
+   "area": "gdal:drivers",
+   "upstream": null,
+   "search": "GTiff: AdviseRead() is a no-op, so separate windows over /vsicurl/ can't be prefetched together",
    "search_source": "title"
   },
   {

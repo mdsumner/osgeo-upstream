@@ -72,6 +72,17 @@ checked on master after that, or on older releases.
 | WMTS overview bands (VRT over WMS) report `GCI_Undefined` | notes, item 2 | ready | P2 | Same PR or a second one: set colour interpretation on the VRT bands |
 | `OVERVIEW_LEVEL` opens lose the alpha band, so warps treat alpha as data | notes, item 3 | follows | P3 | Mention as the motivation in the PR; nothing separate to file |
 
+## Warp at the antimeridian, GTiff prefetch (found 2026-11-08)
+
+Drafts: [notes/2026-11-08-warp-sandbox-drafts/](notes/2026-11-08-warp-sandbox-drafts/README.md),
+from mdsumner/warp-sandbox (`notes/`, evidence in `bench/README.md` sections 4-5).
+Written against `3.14.0dev-fa1fc3c77e`. Starting points, not text to paste.
+
+| Item | Where | Status | P | Next step |
+|---|---|---|---|---|
+| gdalwarp reads a full-width source strip when the target crosses the antimeridian of a global lon/lat source; two edge windows need 11.3x fewer pixels | [#62](https://github.com/mdsumner/osgeo-upstream/issues/62), draft 01; rwarp fix hypertidy/rwarp#57; related [#28](https://github.com/mdsumner/osgeo-upstream/issues/28) | ready | P2 | Re-run on master, settle the pixel count, rewrite short and file. Ask whether a split in `CollectChunkList()` (behind a warp option) is welcome |
+| GTiff `AdviseRead()` is a no-op, so separate windows over /vsicurl/ queue one round trip each | [#63](https://github.com/mdsumner/osgeo-upstream/issues/63), draft 02; overlaps [#39](https://github.com/mdsumner/osgeo-upstream/issues/39) WP3 | ready | P3 | After 01 has a response. Check `GDAL_NUM_THREADS` paths first; frame as a question (accumulating `AdviseRead()` vs multi-window `RasterIO()`) |
+
 ## vrt:// connection
 
 | Item | Where | Status | P | Next step |

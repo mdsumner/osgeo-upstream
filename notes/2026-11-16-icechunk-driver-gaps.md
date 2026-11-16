@@ -62,6 +62,12 @@ config options), `zarr.rst` (numcodecs codecs).
   filter default of 4. A first version decoded float32 right and int16 wrong
   (caught by comparing OISST with icechunk-python). Test more than one
   element size.
+- **Public repro for 14917:** zarr-icechunk-assure's
+  `fixtures/oisst-sample/repo-https-2026-07-07.zip` (35 KB, also shipped in
+  tabularberg as `inst/extdata/oisst-sample/`): `gdal mdim info
+  /vsiicechunk/{/vsizip/repo-https-2026-07-07.zip}/` reads metadata and
+  coordinates; the int16 shuffle+zlib data arrays fail. Probe: lon 199.875,
+  lat -9.875, day 1 = 2782 packed (27.82 C).
 - Related: GDAL issue 14833 (jhamman, Earthmover, 2026-06-19, open): an array
   with an unsupported codec is dropped from `gdal mdim info` instead of being
   listed as unreadable. D removes the most common trigger but not the silent

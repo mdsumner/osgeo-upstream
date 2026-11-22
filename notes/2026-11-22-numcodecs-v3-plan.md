@@ -79,6 +79,13 @@ BRAN, PACE_OCI (14917's repro) and the tiny OISST repo open with no
 "Unsupported codec". OISST probe reads 2782, via
 `ICECHUNK:<path>?ignore-timestamp-etag=yes` because of Icechunk gap F (an
 unrelated driver bug, notes/2026-11-16-icechunk-driver-gaps.md).
+Step 5 done: repro `check fx` gives `v3_numcodecs_shuffle_zlib` and
+`v3_numcodecs_zlib` OK (zstd still fails, expected); a BRAN `temp` chunk is
+identical to icechunk-python
+([bran_crosscheck.py](2026-11-22-numcodecs-pr1/bran_crosscheck.py)). Run
+`cfg` before the final build so the version string shows the branch, not
+`fedfd3ec89-dirty`. Next: step 6 (`git add -A autotest/gdrivers`, read the
+diff), then 7.
 
 5. Real reads with the new build: repro `check fx` (`v3_numcodecs_shuffle_zlib`
    and `v3_numcodecs_zlib` OK; `v3_numcodecs_zstd` still fails, expected);

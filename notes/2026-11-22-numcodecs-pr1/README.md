@@ -11,3 +11,7 @@ Checked 2026-11-22: with the WP4 build (`3.14.0dev-30732f5482`) all five
 read stores match and the invalid one is refused ("only elementsize = 1, 2,
 4 or 8 is supported (got 3)"); with the stock build (`fedfd3ec89`) all six
 fail "Unsupported codec". Steps: [../2026-11-22-numcodecs-v3-plan.md](../2026-11-22-numcodecs-v3-plan.md).
+- `bran_crosscheck.py`: one BRAN `temp` chunk read through GDAL and through
+  icechunk-python + zarr; must be identical. 2026-11-22 with the PR 1
+  build: identical (0 of 90,000 cells differ), 24.73 / 28.24 / 30.23 degC,
+  805 fill cells.

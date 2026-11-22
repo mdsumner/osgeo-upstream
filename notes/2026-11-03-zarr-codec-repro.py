@@ -9,7 +9,9 @@ are installed and read where the GDAL under test is:
 Every Int16 store holds the same 4 x 6 array (values a*7 - 50), chunks 2 x 3,
 so a correct read returns expected.npy exactly; the floatpred stores hold
 the Float32 array in expected_f4.npy. Fixtures written 2026-11-03
-with zarr 3.4.2, numcodecs 0.17.1, imagecodecs 2026.10.10.
+with zarr 3.4.2, numcodecs 0.17.1, imagecodecs 2026.10.10; also runs with
+zarr 3.2.1, numcodecs 0.16.5, imagecodecs 2026.6.26 (2026-11-22), where the
+V3 floatpred fixture comes out as a filter, not a serializer.
 """
 
 import json
@@ -32,8 +34,12 @@ def expected_f4():
 
 def make(out):
     import numcodecs
-    import numcodecs.zarr3 as nc3
     import zarr
+    try:  # zarr >= 3.1.3; numcodecs.zarr3 is deprecated
+        import zarr.codecs.numcodecs as nc3
+    except ImportError:
+        import numcodecs.zarr3 as nc3
+    from zarr.abc.codec import ArrayArrayCodec
     import imagecodecs.numcodecs as icn
     from imagecodecs.zarr import Delta as DeltaV3, register_codecs
     from imagecodecs.zarr import Floatpred as FloatpredV3
@@ -68,10 +74,14 @@ def make(out):
           compressors=numcodecs.Zstd(level=1))
     # TIFF PREDICTOR=3 (floating point), Float32
     f = expected_f4()
+    # imagecodecs 2026.10.10 has Floatpred as array-to-bytes (it takes the
+    # place of the bytes codec); 2026.6.26 has it as array-to-array (a
+    # filter before bytes). Write whichever form the installed one gives.
+    fp = FloatpredV3(axis=-1, dist=1)
+    fp_kw = ({"filters": [fp]} if isinstance(fp, ArrayArrayCodec)
+             else {"serializer": fp})
     write("v3_imagecodecs_floatpred_zstd", 3, data=f, fill=float("nan"),
-          # array-to-bytes in V3: it takes the place of the bytes codec
-          serializer=FloatpredV3(axis=-1, dist=1),
-          compressors=[nc3.Zstd(level=1)])
+          compressors=[nc3.Zstd(level=1)], **fp_kw)
     write("v2_imagecodecs_floatpred_zstd", 2, data=f, fill=float("nan"),
           filters=[icn.Floatpred(axis=-1, dist=1, shape=CHUNKS, dtype="<f4")],
           compressors=numcodecs.Zstd(level=1))

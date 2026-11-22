@@ -4,7 +4,8 @@ Why GDAL cannot read the virtual stores raad.virtualize writes for GHRSST MUR
 (COGs, ZSTD + PREDICTOR=2) and BRAN (netCDF4, shuffle + zlib) through
 `/vsiicechunk/` (Zarr V3) or kerchunk refs (Zarr V2), and what each fix
 involves. Code locations are GDAL master `5906ed4` (2026-11-03), read, not
-built. The repro has not been run against GDAL yet.
+built. Repro run 2026-11-22 against `3.14.0dev-fedfd3ec89`: exactly as
+expected below (LEDGER.md).
 
 Repro: [2026-11-03-zarr-codec-repro.py](2026-11-03-zarr-codec-repro.py)
 writes eight tiny stores (the same 4 x 6 Int16 array, or a Float32 one for

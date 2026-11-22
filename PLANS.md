@@ -27,6 +27,19 @@ Last updated 2026-11-05.
 | Nulls in Parquet domain (implicit zero) | [#38](https://github.com/mdsumner/osgeo-upstream/issues/38) | idea | P3 | Re-read |
 | Eager configure pyarrow/sedonadb | [#37](https://github.com/mdsumner/osgeo-upstream/issues/37) | idea | P3 | Re-read |
 
+## Icechunk driver (found 2026-11-16; F 2026-11-22)
+
+Note: [notes/2026-11-16-icechunk-driver-gaps.md](notes/2026-11-16-icechunk-driver-gaps.md).
+Driver is master only; everything ships in 3.14 unless fixed before it branches.
+
+| Item | Where | Status | P | Next step |
+|---|---|---|---|---|
+| Last-modified check requires an exact match; Icechunk only refuses sources modified after the stored time (F) | note, F; `frmts/icechunk/vsiicechunk.cpp` ~L437 | ready | P1 | With C and E: one bug-fix PR, before 3.14 branches |
+| `file://` chunk locations and `/vsiicechunk/{...?branch=}` query (C, E) | note; ref. patch `30732f5482` | ready | P1 | One bug-fix PR, before 3.14 branches |
+| Open by snapshot id (A) | note | ready | P2 | Feature PR |
+| Virtual chunk allow-list and its default (B) | note | idea | P2 | Issue asking about the default |
+| Icechunk over plain HTTP needs the `repo` file URL | note | idea | P3 | Did not reproduce on source.coop 2026-11-22 (LEDGER); check the original case |
+
 ## Multidim VRT (found 2026-10-28, parked)
 
 Repro and findings: [notes/2026-10-28-mdim-vrt-findings.md](notes/2026-10-28-mdim-vrt-findings.md).

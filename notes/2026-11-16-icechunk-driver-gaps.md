@@ -42,6 +42,7 @@ with correct history, zstd coordinate arrays over the network.
 | C | With `ICECHUNK_ALLOW_LOCAL_CHUNK_LOCATION=YES`, `file://` chunk locations fail: "Cannot open file:///..." (the URL goes to `VSIFOpenL` verbatim) | bug | strip `file://` before opening | one line + test |
 | D | Zarr V3 has no `numcodecs.zlib` / `numcodecs.shuffle`: OISST, ACCESS-ESM, BRAN, GEBCO-style virtual COGs and most netCDF-4 derived virtual arrays are unreadable | missing codec | two thin V3 codecs over the V2 zlib compressor and shuffle filter | small; **already tracked, see below** |
 | E | `/vsiicechunk/{/path/to/repo?branch=x}` (the syntax in the driver's own comment and error message) ignores the query unless `ICECHUNK:` is inside the braces | bug | parse the query either way | small |
+| F | A virtual chunk's source must have exactly the stored last-modified time (`vsiicechunk.cpp` ~L437, `st_mtime != checksumLastModified`). Icechunk's rule is to refuse only if the object was modified *after* that time (icechunk 2.1.0, `last_updated_at_checksum`: "Icechunk will refuse to serve data from this chunk if it has been modified in object store after this time"). Writers that record the time they wrote the refs are refused although icechunk-python serves them. Found 2026-11-22 | bug | refuse only when `st_mtime > checksumLastModified`; error message to match | one comparison + test |
 
 Tests added with the reference patches: `test_icechunk_open_snapshot` (A,
 E), `test_icechunk_virtual_chunk_allowed_prefixes` (B),
@@ -109,7 +110,7 @@ config options), `zarr.rst` (numcodecs codecs).
 
 All before 3.14 branches, if possible.
 
-Rows for PLANS.md (not added: PLANS.md has uncommitted edits from elsewhere):
+Rows for PLANS.md (added to PLANS.md 2026-11-22, with F):
 
 | Item | Where | Status | P | Next step |
 |---|---|---|---|---|
@@ -117,3 +118,17 @@ Rows for PLANS.md (not added: PLANS.md has uncommitted edits from elsewhere):
 | Icechunk driver: open by snapshot id (A) | this note | ready | P2 | Feature PR |
 | Icechunk driver: virtual chunk allow-list and its default (B) | this note | idea | P2 | Issue asking about the default |
 | Icechunk over plain HTTP needs the `repo` file URL | this note | idea | P3 | Issue or question |
+
+## F, found 2026-11-22
+
+The tiny OISST repo (`mdsumner/tiny-zlib-oisst-repo`, the 14917 repro) stores
+1783337846 (2026-07-06 11:37 UTC, when the refs were written) for its NCEI
+netCDF chunks; NCEI reports 1589555264 (2020-05-15). Reading `sst` fails:
+
+```
+Last modified timestamp verification on /vsicurl/https://www.ncei.noaa.gov/data/sea-surface-temperature-optimum-interpolation/v2.1/access/avhrr/198109/oisst-avhrr-v02r01.19810901.nc failed: got 1589555264, expected 1783337846. If you want to ignore this check, append '?ignore-timestamp-etag=yes' to the connection string
+```
+
+Workaround: `ICECHUNK:<path>?ignore-timestamp-etag=yes` (the query is only
+parsed with the `ICECHUNK:` prefix). Not covered by the WP4 validation or
+patches. Same fix could go with C and E (driver bug-fix PR).

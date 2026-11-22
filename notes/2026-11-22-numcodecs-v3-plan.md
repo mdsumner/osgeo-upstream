@@ -59,16 +59,26 @@ cat ~/Git/osgeo-upstream/notes/2026-11-22-numcodecs-pr1/zarr_driver_numcodecs_te
 #    (then delete the 3-line "Append to ..." comment at the top of what was appended)
 
 # 4. build and test. build/autotest is a copy of autotest (not a symlink), so
-#    check the new tests and stores reached it; if not, `cmake -S . -B build`
-#    refreshes the copy. Otherwise the tests would regenerate the stores in
+#    check the new tests and stores reached it; if not, `cfg` (re-running
+#    cmake) refreshes the copy. Otherwise the tests would regenerate the stores in
 #    the build tree and never read the committed ones.
-cmake --build build -j
+cfg   # as mdsumner, only after a pull or a change that needs reconfiguring
+bld   # as mdsumner: cmake --build . --parallel 31 in ~/gdal/build
+tgt   # as ubuntu: sudo cmake --build . --parallel 31 --target install
+      #   (Python bindings land in /usr/local/lib/python3.12/dist-packages/osgeo)
 grep -c numcodecs build/autotest/gdrivers/zarr_driver.py      # expect > 0
 ls build/autotest/gdrivers/data/zarr/v3 | grep -c numcodecs   # expect 6
 cd build && pytest autotest/gdrivers/zarr_driver.py -k numcodecs && \
   pytest autotest/gdrivers/zarr_driver.py autotest/gdrivers/icechunk_driver.py; cd ..
 pre-commit run --files $(git diff --name-only --cached) autotest/gdrivers/zarr_driver.py
 ```
+
+Progress 2026-11-22: steps 1-4 done (tests pass; the banner comments and
+the "Append to" comment dropped, as the file uses test names for that).
+BRAN, PACE_OCI (14917's repro) and the tiny OISST repo open with no
+"Unsupported codec". OISST probe reads 2782, via
+`ICECHUNK:<path>?ignore-timestamp-etag=yes` because of Icechunk gap F (an
+unrelated driver bug, notes/2026-11-16-icechunk-driver-gaps.md).
 
 5. Real reads with the new build: repro `check fx` (`v3_numcodecs_shuffle_zlib`
    and `v3_numcodecs_zlib` OK; `v3_numcodecs_zstd` still fails, expected);

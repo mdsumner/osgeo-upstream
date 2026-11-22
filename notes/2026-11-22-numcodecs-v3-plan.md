@@ -20,6 +20,12 @@ split it per PR and redo each piece on current master. It doesn't do C1.
 the BRAN Icechunk store. Record the failures in LEDGER.md.
 Gate: each failure is the expected one; nobody else has started (14917, open
 PRs).
+**Done 2026-11-22** on `3.14.0dev-fedfd3ec89` (LEDGER.md): fixtures, OISST
+zip and BRAN all fail as expected. BRAN over HTTP:
+`/vsiicechunk/{/vsicurl/https://data.source.coop/ausantarctic/ausantarctic-scratch/bluelink/bluelink-daily-temp/icechunk}`.
+Both stores also show GDAL 14833 (failing arrays left out of the listing).
+Before PR 1: add an OSGeo remote to `~/gdal` (origin is the fork) and branch
+from upstream master.
 
 **1. Comment on 14917 (no code).** Fixtures, the real-store errors, the
 `elementsize` finding (the generic `Decode()` doesn't pass it, falls back to

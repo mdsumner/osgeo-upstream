@@ -98,6 +98,11 @@ diff), then 7.
    (the base `Decode()` passes no options, so shuffle would fall back to 4);
    alternative considered: B.
 
+**PR 1 opened 2026-11-22: [OSGeo/gdal#15565](https://github.com/OSGeo/gdal/pull/15565)**
+(branch `mdsumner:zarr-v3-numcodecs`, 1 commit, 18 files, +578). Fixture
+generator attached to the PR as a standalone script (same code as the tests'
+fallback; reproduces the six stores byte for byte with zarr 3.2.1).
+
 **Next, after PR 1 settles:** `numcodecs.zstd` (C1). Route the name to the
 existing zstd codec, keep the name in the metadata, accept negative levels
 on decode (the existing check rejects `level < 0`). Shape it the way PR 1's

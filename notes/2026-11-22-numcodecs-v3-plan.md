@@ -58,8 +58,13 @@ cp -r ~/Git/osgeo-upstream/notes/2026-11-22-numcodecs-pr1/v3/*.zarr autotest/gdr
 cat ~/Git/osgeo-upstream/notes/2026-11-22-numcodecs-pr1/zarr_driver_numcodecs_tests.py >> autotest/gdrivers/zarr_driver.py
 #    (then delete the 3-line "Append to ..." comment at the top of what was appended)
 
-# 4. build and test
+# 4. build and test. build/autotest is a copy of autotest (not a symlink), so
+#    check the new tests and stores reached it; if not, `cmake -S . -B build`
+#    refreshes the copy. Otherwise the tests would regenerate the stores in
+#    the build tree and never read the committed ones.
 cmake --build build -j
+grep -c numcodecs build/autotest/gdrivers/zarr_driver.py      # expect > 0
+ls build/autotest/gdrivers/data/zarr/v3 | grep -c numcodecs   # expect 6
 cd build && pytest autotest/gdrivers/zarr_driver.py -k numcodecs && \
   pytest autotest/gdrivers/zarr_driver.py autotest/gdrivers/icechunk_driver.py; cd ..
 pre-commit run --files $(git diff --name-only --cached) autotest/gdrivers/zarr_driver.py

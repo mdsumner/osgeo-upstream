@@ -265,7 +265,10 @@ one-sided bias. rwarp already clips.
   evaluated at `(i - delta) * scale` with scale clamped to at most 1
   (~L4854, ~L4964). Bilinear and cubic widen only once scale <= 0.5 (above
   that GDAL uses the 4-sample point formula, `CanUse4SamplesFormula`
-  ~L1041); lanczos widens at any scale below 1.
+  ~L1041); lanczos widens at any scale below 1. That 0.5 threshold is new in
+  3.13.0 (`7e18bd36cf`); up to 3.12 it was 0.95, so bilinear/cubic widened
+  for any downsampling. See
+  [2026-11-10-warp-4sample-threshold.md](2026-11-10-warp-4sample-threshold.md).
 - **Geolocation arrays.** `GEOREFERENCING_CONVENTION` defaults to
   `TOP_LEFT_CORNER` (`alg/gdalgeoloc.cpp`, `GDALCreateGeoLocTransformerEx`).
   CF-style centre coordinates read through the default land half a cell

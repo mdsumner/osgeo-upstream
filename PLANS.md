@@ -58,6 +58,9 @@ a response.
 | Float working type defeats dst nodata avoidance (0.2 -> Byte 0 = nodata, no warning; also on 3.8.4), with the two rounding rules into integer outputs as context | notes, items 5 and 6; draft 03 | ready | P2 | File third; the rounding point may only need a docs sentence for `-ot`/`-wt` |
 | `cubicspline` weight not zero beyond \|x\| = 2; downsampled output asymmetric (~1e-4) | notes, item 7; draft 04 | ready | P3 | File fourth. Fix: return 0 for \|x\| >= 2 in GWKBSpline and GWKBSpline4Values |
 | `average`/`mode` edge weight above 1 when the footprint overhangs the source | notes, item 4; draft 05 | ready | P3 | File last, as a question; maybe a discussion or gdal-dev post instead |
+| 3.13 moved the bilinear/cubic 4-sample threshold from scale >= 0.95 to > 0.5 (`7e18bd36cf`): downsampling < 2x no longer widens, XSCALE > 0.5 ignored; NEWS doesn't say. Real data: up to 10.9 m on a 30 m DEM to 40 m | [notes/2026-11-10-warp-4sample-threshold.md](notes/2026-11-10-warp-4sample-threshold.md) | investigating | P2? | Decide the ask: NEWS/migration note, doc sentence for `-r`/XSCALE, or an option to force the general kernel. Intentional change, so frame as docs, not regression |
+| `gdal_rasterize` sets NoData = 0 on every created output without `-a_nodata` (regression in 3.10.0, `8d9ceabc12`; empty `std::string` passed as `c_str()`); `gdal vector rasterize` too (3.11+, checked). A 0/1 mask's 0s become nodata | [notes/2026-11-11-rasterize-nodata-warp-avoidnodata.md](notes/2026-11-11-rasterize-nodata-warp-avoidnodata.md) A | ready | P2 | Check master, then issue + one-line fix with an autotest (`GetNoDataValue() is None`) |
+| Warp dst-nodata avoidance (3.11+, #11711) now reached by rasterio >= 1.5.1, so odc-geo's integer resamples rewrite 0 -> 1 | same note, B | idea | P3 | GDAL side: maybe a `-dstnodata` doc sentence. Downstream (odc-geo) is the user's call |
 
 ## WMS/WMTS overview colour interpretation (found 2026-11-05)
 

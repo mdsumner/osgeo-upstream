@@ -38,28 +38,43 @@ Both stores also show GDAL 14833 (failing arrays left out of the listing).
 Before PR 1: add an OSGeo remote to `~/gdal` (origin is the fork) and branch
 from upstream master.
 
-**PR 1: `numcodecs.zlib` + `numcodecs.shuffle` (fixes 14917).**
+**PR 1: `numcodecs.zlib` + `numcodecs.shuffle` (fixes 14917).** Code from
+`7f71b6c1e2`; tests replaced by committed stores, pcodec style. Materials:
+[2026-11-22-numcodecs-pr1/](2026-11-22-numcodecs-pr1/README.md).
 
 ```
 cd ~/gdal
+# 1. branch from upstream master
 git remote add upstream https://github.com/OSGeo/gdal   # origin is the fork
 git fetch upstream
 git switch -c zarr-v3-numcodecs upstream/master
-git cherry-pick 7f71b6c1e2
+
+# 2. take the WP4 commit without committing, drop its runtime-built tests
+git cherry-pick -n 7f71b6c1e2
+git restore --source=upstream/master --staged --worktree autotest/gdrivers/zarr_driver.py
+
+# 3. fixtures and the pcodec-style tests
+cp -r ~/Git/osgeo-upstream/notes/2026-11-22-numcodecs-pr1/v3/*.zarr autotest/gdrivers/data/zarr/v3/
+cat ~/Git/osgeo-upstream/notes/2026-11-22-numcodecs-pr1/zarr_driver_numcodecs_tests.py >> autotest/gdrivers/zarr_driver.py
+#    (then delete the 3-line "Append to ..." comment at the top of what was appended)
+
+# 4. build and test
+cmake --build build -j
+cd build && pytest autotest/gdrivers/zarr_driver.py -k numcodecs && \
+  pytest autotest/gdrivers/zarr_driver.py autotest/gdrivers/icechunk_driver.py; cd ..
+pre-commit run --files $(git diff --name-only --cached) autotest/gdrivers/zarr_driver.py
 ```
 
-- [ ] build; `pytest autotest/gdrivers/zarr_driver.py -k numcodecs`, then
-      all of `zarr_driver.py` and `icechunk_driver.py`; pre-commit
-- [ ] read the diff, line by line
-- [ ] real reads: repro `check fx` (`v3_numcodecs_shuffle_zlib` and
-      `v3_numcodecs_zlib` OK; `v3_numcodecs_zstd` still fails, expected);
-      OISST probe lon 199.875, lat -9.875, day 1 = 2782 packed (27.82 C);
-      BRAN `temp` listed and readable
-- [ ] push to the fork, CI green, open the PR: fixes 14917; new since the
-      issue: still failing on master, the `elementsize` point (the base
-      `Decode()` passes no options, so shuffle would fall back to 4);
-      alternative considered: B
-- No separate 14917 comment first: the PR carries it.
+5. Real reads with the new build: repro `check fx` (`v3_numcodecs_shuffle_zlib`
+   and `v3_numcodecs_zlib` OK; `v3_numcodecs_zstd` still fails, expected);
+   OISST probe lon 199.875, lat -9.875, day 1 = 2782 packed (27.82 C); BRAN
+   `temp` listed and readable.
+6. Read the whole diff: `git add -A autotest/gdrivers && git diff --cached`.
+7. Commit (message from `7f71b6c1e2`, with "(fixes #14917)" in the title,
+   test sentence updated), push to the fork, CI green, open the PR. In the
+   description: still failing on master before this; the `elementsize` point
+   (the base `Decode()` passes no options, so shuffle would fall back to 4);
+   alternative considered: B.
 
 **Next, after PR 1 settles:** `numcodecs.zstd` (C1). Route the name to the
 existing zstd codec, keep the name in the metadata, accept negative levels

@@ -34,6 +34,16 @@ encode too? Separate classes, or a `numcodecs.<x>` alias onto existing codecs
 where the bitstream is the same?
 Gate: a reply, or a wait I set.
 
+14917 already has (checked 2026-11-22): the shuffle + zlib request, a link to
+14833, the PACE_OCI Icechunk repro, and the tiny public OISST repo in my
+2026-07-06 comment (`gdal mdim info
+/vsizip//vsicurl/https://github.com/mdsumner/tiny-zlib-oisst-repo/raw/refs/heads/main/oisst_repo.zip/oisst_repo`).
+So the comment only needs what is new: still failing on `3.14.0dev-fedfd3ec89`
+(same tiny repo); `numcodecs.zstd` as a third name; the `elementsize`
+finding; offline fixtures small enough for autotest (the three
+`v3_numcodecs_*` stores from the repro); the three-PR plan and the two
+questions.
+
 **PR 1: `numcodecs.zlib` (C2).** One class on the existing compressor base
 (like `gzip`), registration line, tiny committed fixture written by
 zarr-python (generator noted in the test), one read test, a `zarr.rst` line.

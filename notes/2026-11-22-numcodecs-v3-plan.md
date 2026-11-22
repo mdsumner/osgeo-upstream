@@ -7,10 +7,21 @@ ACCESS-ESM and most netCDF-4 derived stores through `/vsiicechunk/`, and the
 second codec of the GHRSST Icechunk store (GHRSST still needs C4,
 `imagecodecs_delta`).
 
-Reference implementation of C2 and C3: `~/gdal-wp4`, branch `icechunk-wp4`,
-`7f71b6c1e2` (330 lines over 6 files, mostly a new
-`zarr_v3_codec_numcodecs.cpp`; based on `fa1fc3c77e`). Use it as reference:
-split it per PR and redo each piece on current master. It doesn't do C1.
+Decided 2026-11-22: one fix at a time, starting with the one 14917 asks for
+(zlib + shuffle, which every affected store uses together). The first PR
+draws the review of the approach; later ones follow whatever it settles.
+Approach A (explicit codec classes, as `gzip`, `zstd`, `numcodecs.pcodec`).
+B (one generic `numcodecs.<id>` bridge onto CPL compressors, as V2 filters
+do) is off precedent: mention it in the PR as the alternative considered,
+and offer it if maintainers prefer it.
+
+The code exists: `~/gdal-wp4` (a worktree of `~/gdal`), branch
+`icechunk-wp4`, commit `7f71b6c1e2` "Zarr V3: add numcodecs.zlib and
+numcodecs.shuffle codecs" (330 lines, 6 files; shuffle overrides `Decode()`
+to pass `ELEMENTSIZE`; tests write stores at runtime for int16, float32,
+uint8, float64, plus an invalid elementsize). Applies cleanly to master
+`900c99f512` (2026-11-22). The commit after it (`30732f5482`, Icechunk
+snapshot / file:// / allow-list) is a separate track.
 
 ## Steps
 
@@ -27,53 +38,33 @@ Both stores also show GDAL 14833 (failing arrays left out of the listing).
 Before PR 1: add an OSGeo remote to `~/gdal` (origin is the fork) and branch
 from upstream master.
 
-**1. Comment on 14917 (no code).** Fixtures, the real-store errors, the
-`elementsize` finding (the generic `Decode()` doesn't pass it, falls back to
-4: float32 right, int16 wrong). Propose three small PRs. Ask: decode only or
-encode too? Separate classes, or a `numcodecs.<x>` alias onto existing codecs
-where the bitstream is the same?
-Gate: a reply, or a wait I set.
+**PR 1: `numcodecs.zlib` + `numcodecs.shuffle` (fixes 14917).**
 
-14917 already has (checked 2026-11-22): the shuffle + zlib request, a link to
-14833, the PACE_OCI Icechunk repro, and the tiny public OISST repo in my
-2026-07-06 comment (`gdal mdim info
-/vsizip//vsicurl/https://github.com/mdsumner/tiny-zlib-oisst-repo/raw/refs/heads/main/oisst_repo.zip/oisst_repo`).
-So the comment only needs what is new: still failing on `3.14.0dev-fedfd3ec89`
-(same tiny repo); `numcodecs.zstd` as a third name; the `elementsize`
-finding; offline fixtures small enough for autotest (the three
-`v3_numcodecs_*` stores from the repro); the three-PR plan and the two
-questions.
+```
+cd ~/gdal
+git remote add upstream https://github.com/OSGeo/gdal   # origin is the fork
+git fetch upstream
+git switch -c zarr-v3-numcodecs upstream/master
+git cherry-pick 7f71b6c1e2
+```
 
-**PR 1: `numcodecs.zlib` (C2).** One class on the existing compressor base
-(like `gzip`), registration line, tiny committed fixture written by
-zarr-python (generator noted in the test), one read test, a `zarr.rst` line.
-Its real job is to settle conventions (file layout, fixture style, test
-style, doc wording). Expect changes; carry them into PR 2 and PR 3 before
-opening those.
+- [ ] build; `pytest autotest/gdrivers/zarr_driver.py -k numcodecs`, then
+      all of `zarr_driver.py` and `icechunk_driver.py`; pre-commit
+- [ ] read the diff, line by line
+- [ ] real reads: repro `check fx` (`v3_numcodecs_shuffle_zlib` and
+      `v3_numcodecs_zlib` OK; `v3_numcodecs_zstd` still fails, expected);
+      OISST probe lon 199.875, lat -9.875, day 1 = 2782 packed (27.82 C);
+      BRAN `temp` listed and readable
+- [ ] push to the fork, CI green, open the PR: fixes 14917; new since the
+      issue: still failing on master, the `elementsize` point (the base
+      `Decode()` passes no options, so shuffle would fall back to 4);
+      alternative considered: B
+- No separate 14917 comment first: the PR carries it.
 
-**PR 2: `numcodecs.shuffle` (C3).** Bytes-to-bytes over the existing shuffle
-decoder (`ZarrGetShuffleDecompressor()`), `elementsize` passed explicitly.
-Tests for element sizes 1, 2, 4, 8 and an invalid one; `zarr.rst` line. After
-PR 1 merges. Closes 14917.
-Extra gate: OISST and BRAN read through `/vsiicechunk/` and match
-icechunk-python. OISST probe: lon 199.875, lat -9.875, day 1 = 2782 packed
-(27.82 C).
-
-**PR 3: `numcodecs.zstd` (C1).** Route the name to the existing zstd codec.
-Negative levels: accept on decode (level is irrelevant there), refuse or
-clamp on encode. One test, doc line. If 14917's reply prefers an alias table,
-this may go first or fold into PR 1.
-
-## Gate before opening each PR
-
-- [ ] read the full diff, line by line
-- [ ] build
-- [ ] `autotest/gdrivers/zarr_driver.py` and `icechunk_driver.py` pass
-- [ ] pre-commit hooks pass
-- [ ] fixture values match zarr-python
-- [ ] CI green on the fork
-- [ ] one independent local review pass (e.g. `/code-review`)
-- [ ] the previous PR has merged
+**Next, after PR 1 settles:** `numcodecs.zstd` (C1). Route the name to the
+existing zstd codec, keep the name in the metadata, accept negative levels
+on decode (the existing check rejects `level < 0`). Shape it the way PR 1's
+review lands.
 
 ## Left after this
 

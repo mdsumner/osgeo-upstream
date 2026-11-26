@@ -51,6 +51,18 @@ No tracker issues yet.
 | mdim `<BlockSize>`: XSD integerList (spaces) vs driver (commas only) | notes, item 2 | parked | P3 | Check master's gdalvrt.xsd and parser |
 | `dataAxisToSRSAxisMapping`: identity default on (t, y, x), 0 in slice mappings | notes, item 3 | parked | P3 | Check master; read mapping set-up and GetView remap |
 
+## Classic rasters as MDArrays (found 2026-11-26, draft ready to file)
+
+Findings: [notes/2026-11-26-mdim-classic-strided-read.md](notes/2026-11-26-mdim-classic-strided-read.md),
+repro [notes/2026-11-26-mdim-classic-strided-read-repro.py](notes/2026-11-26-mdim-classic-strided-read-repro.py),
+issue draft [notes/2026-11-26-mdim-classic-strided-read-issue.md](notes/2026-11-26-mdim-classic-strided-read-issue.md)
+(rewrite in my own words, declare tool use). No tracker issue yet.
+
+| Item | Where | Status | P | Next step |
+|---|---|---|---|---|
+| Index and strided views of `AsMDArray()` / `GetResampled()` read a `count * step` window: an index view (`[0]`) returns an unwritten buffer, a step errors past the edge or decimates (and can read overviews). Affects every raad.virtualize mdim.vrt (`<SourceBand>` sources) | notes; `gcore/gdalrasterband.cpp` `GDALMDRasterIOFromBand()`, `gcore/gdaldataset.cpp` `GDALMDArrayFromDataset::ReadWrite()` (master 948f102a) | ready | P1 | Rewrite and file the draft; a PR with a test after a response. Then recheck 2026-10-28 item 1 |
+| `AsMDArray()` on a second unnamed MEM dataset: "An existing shared dataset already has this description" | notes, side finding | idea | P3 | Look at `MarkAsShared()` with empty descriptions |
+
 ## Warp kernels (found 2026-10-28, drafts ready to file)
 
 Findings: [notes/2026-10-28-gdalwarp-kernel-findings.md](notes/2026-10-28-gdalwarp-kernel-findings.md),

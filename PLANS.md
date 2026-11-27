@@ -39,6 +39,7 @@ Driver is master only; everything ships in 3.14 unless fixed before it branches.
 | Open by snapshot id (A) | note | ready | P2 | Feature PR |
 | Virtual chunk allow-list and its default (B) | note | idea | P2 | Issue asking about the default |
 | Icechunk over plain HTTP needs the `repo` file URL | note | idea | P3 | Did not reproduce on source.coop 2026-11-22 (LEDGER); check the original case |
+| `vcc://<name>/` locations (named virtual chunk containers) not resolved (G) | [notes/2026-11-27-icechunk-vcc.md](notes/2026-11-27-icechunk-vcc.md), repro and issue draft beside it | ready | P2 | Rewrite and file the draft, or fold into the C, E, F bug-fix PR; before 3.14 branches |
 
 ## Multidim VRT (found 2026-10-28, parked)
 

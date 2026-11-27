@@ -132,3 +132,13 @@ Last modified timestamp verification on /vsicurl/https://www.ncei.noaa.gov/data/
 Workaround: `ICECHUNK:<path>?ignore-timestamp-etag=yes` (the query is only
 parsed with the `ICECHUNK:` prefix). Not covered by the WP4 validation or
 patches. Same fix could go with C and E (driver bug-fix PR).
+
+## G, found 2026-11-27
+
+`vcc://<container name>/<path>` locations (virtual refs relative to a named
+virtual chunk container, icechunk-python >= 2.3) are not resolved: refused
+as non-network, or "Cannot open vcc://..." with
+`ICECHUNK_ALLOW_LOCAL_CHUNK_LOCATION=YES`. The container name in the
+repository config is never read. Note, repro and issue draft:
+[2026-11-27-icechunk-vcc.md](2026-11-27-icechunk-vcc.md). Small; it could go
+with C, E and F in the driver bug-fix PR.
